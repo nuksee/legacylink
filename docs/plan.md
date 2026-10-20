@@ -7,7 +7,8 @@ Starting point: no code, no Meta Model API access yet. Judging weighs the demo a
 ## Before Oct 26 (no code)
 
 - [x] Apply to the hackathon (approved Oct 20).
-- [ ] Get Meta Model API access and credits; confirm Muse Spark supports computer use.
+- [x] Get Meta Model API access (account and one API key created Oct 20).
+- [ ] Confirm credits on the Billing page and that Muse Spark supports computer use.
 - [ ] Read the official rules once they're published.
 
 ## 1. Foundation (Oct 26–28)

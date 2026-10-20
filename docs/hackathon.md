@@ -22,6 +22,8 @@ Gathered Oct 20, 2026 from search results; the official event page couldn't be o
 
 ## Meta Model API
 
+- Our account is set up with one API key (Oct 20). The dashboard also offers Muse Code, a terminal coding tool, which needs a separate subscription.
+
 - Muse Spark 1.1 opened to developers through the Model API in July 2026, at first for US developers.
 - New sign-ups get $20 in free credits; one source says hackathon participants get $150.
 - After credits: $1.25 per million input tokens, $4.25 per million output tokens.
