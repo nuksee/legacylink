@@ -1,4 +1,4 @@
-// Picks the model for the explorer and learner and wraps every call in validation, one retry,
+// Picks the model for the explorer, learner and healer and wraps every call in validation, one retry,
 // the record/replay cache and the run log.
 //
 //   LEGACYLINK_MODEL=live       call Muse Spark; answers are recorded, and a recorded answer is reused
@@ -13,12 +13,16 @@ import { checkTaskBody, validator } from '../formats/validate.js';
 import type { RunLog } from '../runlog/runlog.js';
 import { heuristicModel } from './heuristic.js';
 import { chat, museConfigFromEnv, type MuseConfig } from './muse.js';
+import { eligible } from './heal-heuristic.js';
 import {
   analyzeScreenSchema,
+  healTargetSchema,
   learnTaskSchema,
   searchValuesSchema,
   type AnalyzeScreenInput,
   type AnalyzeScreenOutput,
+  type HealTargetInput,
+  type HealTargetOutput,
   type LearnTaskInput,
   type LearnTaskOutput,
   type Model,
@@ -59,6 +63,16 @@ export class ModelError extends Error {}
 const validAnalyze = validator<AnalyzeScreenOutput>(analyzeScreenSchema);
 const validSearch = validator<SearchValuesOutput>(searchValuesSchema);
 const validLearn = validator<LearnTaskOutput>(learnTaskSchema);
+const validHeal = validator<HealTargetOutput>(healTargetSchema);
+
+// A heal answer must name one of the candidates, and one the rules allow.
+function checkHeal(input: HealTargetInput, out: HealTargetOutput): string[] {
+  if (out.ref === null) return [];
+  const el = input.candidates.find((c) => c.ref === out.ref);
+  if (!el) return [`ref: "${out.ref}" is not one of the candidates`];
+  const why = eligible(input.missing, el);
+  return why ? [`ref: ${why}`] : [];
+}
 
 function checkAnalyze(input: AnalyzeScreenInput, out: AnalyzeScreenOutput): string[] {
   const refs = new Set(input.elements.map((e) => e.ref));
@@ -92,7 +106,7 @@ export function createModel(opts: ModelOptions): Model & { mode: ModelMode } {
   const modelId = cfg?.model ?? env.MUSE_MODEL ?? 'muse-spark-1.3';
 
   async function call<I extends object, O>(
-    stage: 'explore' | 'learn',
+    stage: 'explore' | 'learn' | 'heal',
     promptId: string,
     schemaName: string,
     schema: object,
@@ -160,5 +174,6 @@ export function createModel(opts: ModelOptions): Model & { mode: ModelMode } {
     analyzeScreen: (input: AnalyzeScreenInput) => call('explore', 'explore-screen', 'screen_analysis', analyzeScreenSchema, input, validAnalyze, checkAnalyze),
     searchValues: (input: SearchValuesInput) => call('explore', 'explore-search-values', 'search_values', searchValuesSchema, input, validSearch, checkSearch),
     learnTask: (input: LearnTaskInput) => call('learn', 'learn-task', 'learned_task', learnTaskSchema, input, validLearn, (i, out) => checkTaskBody(out, i.graph)),
+    healTarget: (input: HealTargetInput) => call('heal', 'heal-target', 'heal_target', healTargetSchema, input, validHeal, checkHeal),
   };
 }

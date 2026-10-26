@@ -1,7 +1,7 @@
 // What the explorer and learner ask the model, and the JSON it must answer with. Each
 // call has a JSON Schema; answers are validated before they're used.
 
-import { ELEMENT_ROLES, type ElementKind, type ElementRole } from '../formats/graph.js';
+import { ELEMENT_ROLES, type ElementKind, type ElementRole, type Locator } from '../formats/graph.js';
 import { taskBodySchema, type LearnGraph, type TaskBody } from '../formats/task.js';
 
 // One element as the model sees it: the facts, no locators.
@@ -117,4 +117,46 @@ export interface LearnerModel {
   learnTask(input: LearnTaskInput): Promise<LearnTaskOutput>;
 }
 
-export type Model = ExplorerModel & LearnerModel;
+// The healer's question: a control the tool used is gone. Which element on the
+// screen now is the same control? The model picks a ref from the candidates
+// (elements no other known control claims) or null; it never writes locators.
+export interface HealTargetInput {
+  tool: string;
+  access: 'read' | 'write';
+  screen: { name: string; url: string; title: string };
+  missing: {
+    key: string;
+    kind?: string; // from the graph, when known
+    intent: string;
+    op: string; // the step that uses it: fill, select, click, extract, ...
+    commit?: boolean; // the step is the write's commit click
+    label?: string;
+    text?: string;
+    section?: string;
+    oldLocators: Locator[];
+  };
+  candidates: ElementSummary[];
+  screenshot?: string; // base64 PNG; sent to the model, left out of the cache key
+}
+
+export interface HealTargetOutput {
+  ref: string | null;
+  reason: string; // one sentence, shown in the console and the run log
+}
+
+export const healTargetSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['ref', 'reason'],
+  properties: {
+    ref: { type: ['string', 'null'] },
+    reason: { type: 'string', minLength: 1 },
+  },
+} as const;
+
+export interface HealerModel {
+  readonly id: string;
+  healTarget(input: HealTargetInput): Promise<HealTargetOutput>;
+}
+
+export type Model = ExplorerModel & LearnerModel & HealerModel;

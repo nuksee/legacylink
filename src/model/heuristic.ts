@@ -3,6 +3,7 @@
 // tests, CI and offline runs; the live model gives better names and intents.
 
 import type { ElementRole } from '../formats/graph.js';
+import { healTargetHeuristic } from './heal-heuristic.js';
 import { learnTaskHeuristic } from './learn-heuristic.js';
 import { camel, caption, words } from './text.js';
 import type { AnalyzeScreenInput, AnalyzeScreenOutput, ElementSummary, Model, SearchValuesInput, SearchValuesOutput } from './types.js';
@@ -142,4 +143,6 @@ export const heuristicModel: Model = {
   },
 
   learnTask: async (input) => learnTaskHeuristic(input),
+
+  healTarget: async (input) => healTargetHeuristic(input),
 };

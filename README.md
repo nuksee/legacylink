@@ -19,7 +19,7 @@ Enterprises still run legacy apps with no API (WinForms, WebForms, Citrix-publis
 
 ## Status
 
-Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)), the learner ([docs/learner.md](docs/learner.md)), and the compiler, runner, MCP server and approval console ([docs/compiler.md](docs/compiler.md)). Next: self-heal.
+Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)), the learner ([docs/learner.md](docs/learner.md)), the compiler, runner, MCP server and approval console ([docs/compiler.md](docs/compiler.md)), and self-heal ([docs/healer.md](docs/healer.md)). Next: demo hardening.
 
 ```sh
 npm install

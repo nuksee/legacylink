@@ -50,8 +50,10 @@ export async function startConsole(opts: ConsoleOptions): Promise<ConsoleServer>
         changedSinceApproval: s.access === 'write' && entries[s.name]?.lastApprovedVersion !== s.version,
       }));
       const approvals = gate.list().map(({ screenshot: _, ...a }) => a);
-      const runs = (await workspace.runLog.tail(200)).filter((e) => e.type !== 'step').slice(-60);
-      return send(res, 200, JSON.stringify({ tools, approvals, runs }));
+      const events = await workspace.runLog.tail(500);
+      const runs = events.filter((e) => e.type !== 'step').slice(-60);
+      const heals = events.filter((e) => e.type === 'heal').slice(-5);
+      return send(res, 200, JSON.stringify({ tools, approvals, runs, heals }));
     }
     const shot = /^\/api\/approvals\/([\w-]+)\/screenshot$/.exec(url.pathname);
     if (req.method === 'GET' && shot) {
@@ -108,11 +110,22 @@ const PAGE = `<!doctype html>
   button.approve { background: var(--ok); color: #fff; border-color: var(--ok); }
   button.reject { background: transparent; color: var(--bad); border-color: var(--bad); }
   .empty { color: var(--muted); }
+  #healsBox { display: none; border: 2px solid var(--accent); }
+  #healsBox.on { display: block; }
+  .heal + .heal { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .heal .title { font-size: 15px; font-weight: 600; }
+  .heal .fix { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; margin: 6px 0 2px; }
+  .heal .old { text-decoration: line-through; color: var(--bad); }
+  .heal .new { color: var(--ok); font-weight: 600; }
+  .heal .why { color: var(--muted); margin: 0 0 4px; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; background: var(--accent); color: var(--card); margin-left: 6px; }
+  .healnote { margin: 6px 0; padding-left: 18px; }
   @media (max-width: 760px) { .approval { grid-template-columns: 1fr; } }
 </style></head>
 <body>
 <header><h1>LegacyLink console</h1><span id="sub"></span></header>
 <main>
+  <section id="healsBox"><h2>Self-heals</h2><div id="heals"></div></section>
   <section><h2>Waiting for approval</h2><div id="approvals"></div></section>
   <section><h2>Tools</h2><table><thead><tr><th>Tool</th><th>Version</th><th>Access</th><th>Status</th></tr></thead><tbody id="tools"></tbody></table></section>
   <section><h2>Run log</h2><table><thead><tr><th>Time</th><th>Run</th><th>Event</th><th>Detail</th></tr></thead><tbody id="runs"></tbody></table></section>
@@ -134,6 +147,10 @@ function eventRow(e) {
   }
   if (e.type === 'approval_requested') { what = 'approval requested'; detail = e.healedSinceLastApproval ? 'changed since last approval' : ''; }
   if (e.type === 'approval_decided') { what = 'approval ' + e.decision; detail = e.by ? 'by ' + e.by : ''; }
+  if (e.type === 'heal') {
+    what = '<span class="' + (e.status === 'healed' ? 'ok' : e.status === 'failed' ? 'bad' : 'warn') + '">self-heal ' + esc(e.status) + '</span>';
+    detail = e.tool + ' v' + e.fromVersion + (e.toVersion ? ' -> v' + e.toVersion : '') + ': ' + (e.changes.map((c) => c.key + ' ' + c.before + ' -> ' + c.after).join('; ') || e.message);
+  }
   if (e.type === 'model_call') { what = 'model call'; detail = e.stage + ' ' + e.prompt + (e.cached ? ' (cached)' : ''); }
   return '<tr><td><code>' + esc((e.at || '').slice(11, 19)) + '</code></td><td><code>' + esc(e.runId || '') + '</code></td><td>' + (what.startsWith('<') ? what : esc(what)) + '</td><td><code>' + esc(detail) + '</code></td></tr>';
 }
@@ -147,10 +164,20 @@ async function refresh() {
     document.getElementById('approvals').innerHTML = s.approvals.length ? s.approvals.map((a) =>
       '<div class="approval"><div><b>' + esc(a.tool) + '</b> v' + a.version +
       (a.healedSinceLastApproval ? '<div class="changed">Changed since last approval: this tool was healed or recompiled</div>' : '') +
+      (a.heal ? '<ul class="healnote">' + a.heal.map((l) => '<li><code>' + esc(l) + '</code></li>').join('') + '</ul>' : '') +
       '<pre>' + esc(JSON.stringify(a.input, null, 2)) + '</pre><p class="empty">Run ' + esc(a.runId) + ', expires ' + esc(a.expiresAt.slice(11, 19)) + '</p>' +
       '<button class="approve" onclick="decide(\\'' + a.id + '\\', \\'approve\\')">Approve</button><button class="reject" onclick="decide(\\'' + a.id + '\\', \\'reject\\')">Reject</button></div>' +
       '<div><img alt="The filled form, before saving" src="/api/approvals/' + a.id + '/screenshot"></div></div>').join('') : '<p class="empty">Nothing is waiting.</p>';
   }
+  const via = (c, e) => c.via === 'model' ? e.model : c.via === 'heuristic' ? 'rule-based stand-in' : 'exact match';
+  document.getElementById('healsBox').classList.toggle('on', s.heals.length > 0);
+  document.getElementById('heals').innerHTML = s.heals.slice().reverse().map((e) =>
+    '<div class="heal"><div class="title">' + esc(e.tool) + ' v' + e.fromVersion + (e.toVersion ? ' &rarr; v' + e.toVersion : '') +
+    ' <span class="' + (e.status === 'healed' ? 'ok' : e.status === 'failed' ? 'bad' : 'warn') + '">' + esc(e.status) + '</span>' +
+    ' <span class="empty">' + esc((e.at || '').slice(11, 19)) + '</span></div>' +
+    e.changes.map((c) => '<div class="fix"><code class="old">' + esc(c.before) + '</code><span>&rarr;</span><code class="new">' + esc(c.after) + '</code></div>' +
+      '<p class="why">' + esc(c.key) + ', step ' + c.step + '<span class="badge">' + esc(via(c, e)) + '</span> ' + esc(c.why) + '</p>').join('') +
+    '<p class="empty">' + esc(e.message) + '</p></div>').join('');
   document.getElementById('tools').innerHTML = s.tools.map((t) =>
     '<tr><td><b>' + esc(t.name) + '</b><br><span class="empty">' + esc(t.description) + '</span></td><td>' + t.version + '</td><td><span class="pill">' + esc(t.access) + '</span></td><td class="' + (t.status === 'ok' ? 'ok' : 'bad') + '">' + esc(t.status) + (t.changedSinceApproval ? ' <span class="warn">(changed since approval)</span>' : '') + '</td></tr>').join('') || '<tr><td colspan="4" class="empty">No tools registered.</td></tr>';
   document.getElementById('runs').innerHTML = s.runs.slice().reverse().map(eventRow).join('') || '<tr><td colspan="4" class="empty">No runs today.</td></tr>';

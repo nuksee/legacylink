@@ -6,6 +6,16 @@ import { join } from 'node:path';
 export type Outcome = 'ok' | 'app_error' | 'rejected' | 'approval_timeout' | 'failed';
 export type FailureReason = 'invalid_input' | 'locator_failed' | 'postcondition_failed' | 'app_unreachable' | 'failed';
 
+// One control a heal re-located: where it was, where it is now, and who decided.
+export interface HealChange {
+  step: number;
+  key: string;
+  before: string; // "\"Customer #:\" #ctl00_MainContent_txtCustomerId"
+  after: string;
+  via: 'deterministic' | 'model' | 'heuristic';
+  why: string;
+}
+
 export type RunEvent =
   | {
       type: 'model_call';
@@ -22,6 +32,24 @@ export type RunEvent =
   | { type: 'run_started'; runId: string; at: string; tool: string; version: number; access: 'read' | 'write'; input: object; caller?: string }
   | { type: 'step'; runId: string; at: string; index: number; op: string; key?: string; matchedLocator?: number; ms: number; ok: boolean; error?: string }
   | { type: 'approval_requested'; runId: string; at: string; approvalId: string; screenshot: string; healedSinceLastApproval: boolean }
+  | {
+      // healed: the patched spec passed its post-condition and is now the tool's current version.
+      // unverified: the retry didn't finish (rejected, timed out); nothing was registered.
+      // failed: no fix found, or the patched spec failed too.
+      type: 'heal';
+      runId: string; // the failed run
+      at: string;
+      tool: string;
+      fromVersion: number;
+      toVersion?: number;
+      reason: FailureReason;
+      status: 'healed' | 'unverified' | 'failed';
+      changes: HealChange[];
+      usedModel: boolean;
+      model: string;
+      retryRunId?: string;
+      message: string;
+    }
   | { type: 'approval_decided'; runId: string; at: string; approvalId: string; decision: 'approved' | 'rejected' | 'timeout'; by?: string }
   | {
       type: 'run_finished';

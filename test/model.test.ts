@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { createModel, ModelError } from '../src/model/client.js';
-import type { AnalyzeScreenInput } from '../src/model/types.js';
+import type { AnalyzeScreenInput, HealTargetInput } from '../src/model/types.js';
 import { RunLog } from '../src/runlog/runlog.js';
 
 const input: AnalyzeScreenInput = {
@@ -82,6 +82,24 @@ describe('model client', () => {
     assert.deepEqual(await replay.analyzeScreen({ ...input, screenshot: 'different' }), good);
     assert.equal(calls.length, 1);
     await assert.rejects(replay.analyzeScreen({ ...input, title: 'Other' }), ModelError);
+  });
+
+  it('a heal answer must name an allowed candidate; a Save button is refused for a read', async () => {
+    const heal: HealTargetInput = {
+      tool: 'get_order_status',
+      access: 'read',
+      screen: { name: 'Order Status', url: '/Orders/Status.aspx', title: 'Order Status' },
+      missing: { key: 'lookUp', intent: 'runs the lookup', op: 'click', text: 'Look Up', oldLocators: [{ by: 'id', id: 'btnLookup' }] },
+      candidates: [
+        { ref: 'e1', kind: 'button', tag: 'input', text: 'Save' },
+        { ref: 'e2', kind: 'button', tag: 'input', text: 'Find' },
+      ],
+    };
+    answers.push({ ref: 'e1', reason: 'it is a button' }, { ref: 'e2', reason: 'Find does what Look Up did.' });
+    const model = createModel({ cacheDir: dir, env });
+    assert.deepEqual(await model.healTarget(heal), { ref: 'e2', reason: 'Find does what Look Up did.' });
+    assert.match(calls[1]!.body.messages[1].content, /looks like a commit button/);
+    assert.equal(calls[0]!.body.response_format.json_schema.name, 'heal_target');
   });
 
   it('fails the stage after two invalid answers', async () => {

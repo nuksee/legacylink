@@ -79,6 +79,15 @@ export class Registry {
     return versions.length ? Math.max(...versions) + 1 : 1;
   }
 
+  // A tool that keeps breaking stops being offered until someone recompiles it.
+  async markBroken(name: string): Promise<void> {
+    const index = await this.index();
+    const e = index.tools[name];
+    if (!e) return;
+    e.status = 'broken';
+    await this.save(index);
+  }
+
   async markApproved(name: string, version: number): Promise<void> {
     const index = await this.index();
     const e = index.tools[name];

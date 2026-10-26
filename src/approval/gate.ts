@@ -16,6 +16,7 @@ export interface ApprovalRequest {
   input: Record<string, unknown>;
   screenshot: string; // file path
   healedSinceLastApproval: boolean;
+  heal?: string[]; // what a heal in this call changed, one line per control
   requestedAt: string;
   expiresAt: string;
 }

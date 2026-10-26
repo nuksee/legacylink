@@ -3,6 +3,9 @@
 // menu, a search whose grid rows post back, a details page, and a form whose
 // Save and Delete must never be pressed. It counts those presses. Save works
 // (the runner tests press it): it shows the new invoice number or an alert.
+// `drift` changes the screens the way a vendor patch would, for the healer
+// tests: rename gives the search and invoice controls new ids and captions,
+// result renames the element that shows a saved invoice's number.
 
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -16,6 +19,7 @@ export interface FixtureApp {
   url: string; // base URL, ending in the base path
   commits: string[]; // every commit-like request the app received
   invoices: { number: string; customer: string; terms: string }[]; // saved by the runner tests
+  drift: { rename: boolean; result: boolean };
   close(): Promise<void>;
 }
 
@@ -25,6 +29,7 @@ export async function startFixture(basePath = ''): Promise<FixtureApp> {
   const commits: string[] = [];
   const invoices: FixtureApp['invoices'] = [];
   const sessions = new Set<string>();
+  const drift = { rename: false, result: false };
   const href = (p: string) => basePath + p;
 
   const page = (title: string, body: string, loggedIn = true) => `<!DOCTYPE html>
@@ -86,8 +91,9 @@ ${body}
           if (row) return redirect(`/Customer.aspx?id=${row.id}`);
         }
         let grid = '';
-        if (req.method === 'POST' && body.has('btnFind')) {
-          const q = (body.get('txtName') ?? '').toLowerCase();
+        const find = drift.rename ? { box: 'txtCompany', label: 'Company:', btn: 'btnSearch', text: 'Search' } : { box: 'txtName', label: 'Name:', btn: 'btnFind', text: 'Find' };
+        if (req.method === 'POST' && body.has(find.btn)) {
+          const q = (body.get(find.box) ?? '').toLowerCase();
           const rows = CUSTOMERS.filter((c) => c.name.toLowerCase().includes(q));
           grid = `<table id="gvResults"><tr><th>&nbsp;</th><th>Customer ID</th><th>Name</th></tr>${rows
             .map((c) => `<tr><td><a href="javascript:__doPostBack('gvResults','Select$${CUSTOMERS.indexOf(c)}')">Select</a></td><td>${c.id}</td><td>${c.name}</td></tr>`)
@@ -96,8 +102,8 @@ ${body}
         return send(
           page(
             'Find Customer',
-            `<fieldset><legend>Criteria</legend><label for="txtName">Name:</label> <input id="txtName" name="txtName" type="text" maxlength="20" />
-             <input type="submit" id="btnFind" name="btnFind" value="Find" /></fieldset>${grid}`,
+            `<fieldset><legend>Criteria</legend><label for="${find.box}">${find.label}</label> <input id="${find.box}" name="${find.box}" type="text" maxlength="20" />
+             <input type="submit" id="${find.btn}" name="${find.btn}" value="${find.text}" /></fieldset>${grid}`,
           ),
         );
       }
@@ -116,23 +122,24 @@ ${body}
       }
       if (path === '/Invoice.aspx') {
         let result = '';
-        if (req.method === 'POST' && body.has('btnSave')) {
+        const ui = drift.rename ? { cust: 'txtAccount', label: 'Account:', save: 'btnSubmit', text: 'Submit Invoice' } : { cust: 'txtCust', label: 'Customer ID:', save: 'btnSave', text: 'Save Invoice' };
+        if (req.method === 'POST' && body.has(ui.save)) {
           commits.push('save');
-          const cust = CUSTOMERS.find((c) => c.id === body.get('txtCust')?.trim());
+          const cust = CUSTOMERS.find((c) => c.id === body.get(ui.cust)?.trim());
           if (cust) {
             invoices.push({ number: `INV-${1001 + invoices.length}`, customer: cust.id, terms: body.get('ddlTerms') ?? '30' });
-            result = `<span id="lblMsg" role="status">Invoice <b id="lblInvoiceNo">${invoices.at(-1)!.number}</b> saved for ${cust.id}.</span>`;
-          } else result = `<div id="vsErrors" role="alert">Customer ${esc(body.get('txtCust') ?? '')} was not found.</div>`;
+            result = `<span id="lblMsg" role="status">Invoice <b id="${drift.result ? 'lblNewInvoice' : 'lblInvoiceNo'}">${invoices.at(-1)!.number}</b> saved for ${cust.id}.</span>`;
+          } else result = `<div id="vsErrors" role="alert">Customer ${esc(body.get(ui.cust) ?? '')} was not found.</div>`;
         }
         if (req.method === 'POST' && body.has('btnCancel')) return redirect('/Home.aspx');
         return send(
           page(
             'New Invoice',
             `${result}<fieldset><legend>Invoice</legend>
-             <label for="txtCust">Customer ID:</label> <input id="txtCust" name="txtCust" type="text" /> <span id="rfvCust" class="validator" style="visibility:hidden">*</span>
+             <label for="${ui.cust}">${ui.label}</label> <input id="${ui.cust}" name="${ui.cust}" type="text" /> <span id="rfvCust" class="validator" style="visibility:hidden">*</span>
              <label for="ddlTerms">Terms:</label> <select id="ddlTerms" name="ddlTerms"><option value="30">Net 30</option><option value="60">Net 60</option></select>
              </fieldset>
-             <input type="submit" id="btnCancel" name="btnCancel" value="Cancel" /> <input type="submit" id="btnSave" name="btnSave" value="Save Invoice" />
+             <input type="submit" id="btnCancel" name="btnCancel" value="Cancel" /> <input type="submit" id="${ui.save}" name="${ui.save}" value="${ui.text}" />
              <input type="submit" id="btnFrob" name="btnFrob" value="Frobnicate" />`,
           ),
         );
@@ -147,6 +154,7 @@ ${body}
     url: `http://127.0.0.1:${port}${basePath}/`,
     commits,
     invoices,
+    drift,
     close: () => new Promise((r) => server.close(() => r())),
   };
 }

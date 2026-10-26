@@ -55,7 +55,9 @@ Compile options (default tasks: <out>/tasks/*.json):
   --headed               show the browser
 
 Run and serve read <out>/config.json, which compile writes, and the same password variable.
+A call that fails on UI drift is healed once (see docs/healer.md); <out>/graph.json helps it.
   --approve              run: approve a write without asking (otherwise asks on the terminal)
+  --model <mode>         the healer's model: live | replay | heuristic
   --console-port <n>     serve: approval console port (default 5180, 0 for any free port)
   --headed               show the browser`;
 
@@ -124,7 +126,7 @@ async function runCommand(rest: string[]): Promise<number> {
   const { values, positionals } = parseArgs({
     args: rest,
     allowPositionals: true,
-    options: { out: { type: 'string', default: '.legacylink' }, approve: { type: 'boolean', default: false }, headed: { type: 'boolean', default: false } },
+    options: { out: { type: 'string', default: '.legacylink' }, approve: { type: 'boolean', default: false }, headed: { type: 'boolean', default: false }, model: { type: 'string' } },
   });
   const [name, json] = positionals;
   if (!name) {
@@ -142,9 +144,10 @@ async function runCommand(rest: string[]): Promise<number> {
       approve: values.approve ? autoApprover('approved', 'cli --approve') : terminalApprover,
       healedSinceLastApproval: spec.access === 'write' && entry?.lastApprovedVersion !== spec.version,
       tools: (n) => tools.get(n),
+      healer: ws.healer({ mode: values.model as ModelMode | undefined, log: (line) => console.error(line) }),
       caller: 'cli',
     });
-    if (res.outcome === 'ok' && spec.access === 'write') await ws.registry.markApproved(name, spec.version);
+    if (res.outcome === 'ok' && spec.access === 'write') await ws.registry.markApproved(name, res.version);
     console.log(JSON.stringify(res, null, 2));
     return res.outcome === 'ok' ? 0 : 1;
   } finally {
@@ -160,9 +163,11 @@ async function serveCommand(rest: string[]): Promise<number> {
       'console-port': { type: 'string', default: '5180' },
       'no-console': { type: 'boolean', default: false },
       headed: { type: 'boolean', default: false },
+      model: { type: 'string' },
     },
   });
   await serve({
+    model: values.model as ModelMode | undefined,
     workspace: new Workspace(resolve(values.out!)),
     consolePort: values['no-console'] ? undefined : Number(values['console-port']),
     headless: !values.headed,

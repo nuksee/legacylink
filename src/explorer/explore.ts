@@ -84,7 +84,7 @@ function signature(el: RawElement, all: RawElement[]): string {
   return `${el.kind}|${el.id ?? el.name ?? el.text ?? el.label ?? el.css}`;
 }
 
-function summarize(el: RawElement): ElementSummary {
+export function summarize(el: RawElement): ElementSummary {
   const { ref, kind, tag, type, id, name, text, label, section, href, grid, columns, maxLength, required, isPassword } = el;
   const s: ElementSummary = { ref, kind, tag, type, id, name, text, label, section, href, grid, columns, maxLength, required, isPassword };
   if (el.options) s.options = el.options.slice(0, 6).map((o) => o.text);
@@ -117,7 +117,7 @@ function gridLinkLocators(el: RawElement): Locator[] {
 }
 
 // Keep only the locators that pick out exactly this element right now.
-async function verifiedLocators(page: Page, el: RawElement, handle: ElementHandle | undefined): Promise<Locator[]> {
+export async function verifiedLocators(page: Page, el: RawElement, handle: ElementHandle | undefined): Promise<Locator[]> {
   if (el.kind === 'gridLink') return gridLinkLocators(el);
   const all = candidateLocators(el);
   if (!handle) return all;
