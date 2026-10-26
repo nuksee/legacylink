@@ -32,7 +32,12 @@ Against Contoso it takes about 10 seconds and finds 6 screens and 36 edges, 30 o
 | `replay` | recorded answers only; a missing one is an error | rehearsals and the live demo |
 | `heuristic` (default without a key) | a rule-based stand-in with the same JSON in and out | tests, CI, offline work |
 
-Live mode calls the Meta Model API's OpenAI-compatible Chat Completions endpoint with a JSON-schema `response_format`. The defaults are `MUSE_BASE_URL=https://api.meta.ai/v1` and `MUSE_MODEL=muse-spark-1.3`, taken from public provider docs and **not yet tried with our key**. Override them if the first live run says otherwise. Don't use the `-contributor` model variants: they let Meta train on the prompts.
+Live mode calls the Meta Model API's OpenAI-compatible Chat Completions endpoint with a JSON-schema `response_format`. Defaults: `MUSE_BASE_URL=https://api.meta.ai/v1`, `MUSE_MODEL=muse-spark-1.3`, `Authorization: Bearer $MODEL_API_KEY`. Confirmed with our key on 2026-10-26: `/v1/models` lists `muse-spark-1.1`, `-1.2` and `-1.3`, and 1.3 answers schema-constrained JSON with a screenshot attached. Don't use the `-contributor` variants: they let Meta train on the prompts.
+
+- Muse Spark 1.3 is a reasoning model. Hidden reasoning tokens count as completion tokens (a heal answer is about 400 to 1,300 tokens, a learned task 3,000 to 4,600), so the client sets no `max_tokens`. With too small a budget the API returns `content: null` and `finish_reason: "length"`.
+- Behind a proxy that adds the `Authorization` header itself (the Claude cloud environment does this for `api.meta.ai`), leave `MODEL_API_KEY` unset and pass `--model live` or `LEGACYLINK_MODEL=live`: the client then sends no header. Node's `fetch` ignores `HTTPS_PROXY` unless `NODE_USE_ENV_PROXY=1` (Node 22.21 or later).
+
+Measured on Contoso: a full live explore is 14 calls and about 110 s; learning one task is one call, 10 to 18 s; one heal is two calls, 3 to 7 s each.
 
 Each answer is checked against a JSON Schema and against the screen (every element named once, keys unique, refs real). A bad answer gets one retry with the errors attached; a second one fails the run. The cache key is the prompt id, model and structured input. The screenshot is sent but not hashed, so a changing clock or date on screen can't break replay.
 

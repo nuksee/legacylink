@@ -1,0 +1,69 @@
+{
+  "prompt": "heal-target",
+  "model": "muse-spark-1.3",
+  "inputHash": "b0b26ac0007f6e85dde713ad4c5089a3",
+  "at": "2026-10-26T23:01:47.180Z",
+  "input": {
+    "tool": "get_order_status",
+    "access": "read",
+    "screen": {
+      "name": "Order Status",
+      "url": "/Orders/Status.aspx",
+      "title": "Contoso Order Entry - Order Status"
+    },
+    "missing": {
+      "key": "orderNumber",
+      "intent": "the value for \"Order #\"",
+      "op": "fill",
+      "oldLocators": [
+        {
+          "by": "role",
+          "role": "textbox",
+          "name": "Sales Order No.:"
+        },
+        {
+          "by": "label",
+          "text": "Sales Order No.:"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_txtSalesOrderNo"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$txtSalesOrderNo"
+        }
+      ],
+      "kind": "input",
+      "label": "Sales Order No.:",
+      "text": "Sales Order No.:"
+    },
+    "candidates": [
+      {
+        "ref": "e6",
+        "kind": "input",
+        "tag": "input",
+        "type": "text",
+        "id": "ctl00_MainContent_txtOrderNumber",
+        "name": "ctl00$MainContent$txtOrderNumber",
+        "label": "Order #:",
+        "section": "Find Order",
+        "maxLength": 8
+      },
+      {
+        "ref": "e7",
+        "kind": "button",
+        "tag": "input",
+        "type": "submit",
+        "id": "ctl00_MainContent_btnLookup",
+        "name": "ctl00$MainContent$btnLookup",
+        "text": "Look Up",
+        "section": "Find Order"
+      }
+    ]
+  },
+  "output": {
+    "reason": "Order #: is the Find Order text box that replaces Sales Order No. for entering the order number.",
+    "ref": "e6"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "prompt": "heal-target",
+  "model": "muse-spark-1.3",
+  "inputHash": "6b2ca67955153c912308be07567743f8",
+  "at": "2026-10-26T23:01:11.059Z",
+  "input": {
+    "tool": "create_sales_order",
+    "access": "write",
+    "screen": {
+      "name": "New Sales Order",
+      "url": "/Orders/New.aspx",
+      "title": "Contoso Order Entry - New Sales Order"
+    },
+    "missing": {
+      "key": "saveOrder",
+      "intent": "the \"Save Order\" button",
+      "op": "click",
+      "oldLocators": [
+        {
+          "by": "role",
+          "role": "button",
+          "name": "Save Order"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_btnSave"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$btnSave"
+        },
+        {
+          "by": "text",
+          "text": "Save Order",
+          "exact": true
+        }
+      ],
+      "kind": "button",
+      "commit": true,
+      "text": "Save Order"
+    },
+    "candidates": [
+      {
+        "ref": "e18",
+        "kind": "button",
+        "tag": "input",
+        "type": "submit",
+        "id": "ctl00_MainContent_btnSubmit",
+        "name": "ctl00$MainContent$btnSubmit",
+        "text": "Submit Order"
+      }
+    ]
+  },
+  "output": {
+    "reason": "Submit Order is the bottom save button that commits the new sales order, renamed from Save Order.",
+    "ref": "e18"
+  }
+}

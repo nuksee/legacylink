@@ -1,0 +1,58 @@
+{
+  "prompt": "heal-target",
+  "model": "muse-spark-1.3",
+  "inputHash": "df915ae98fb4a006fcf8549e3ee8d44f",
+  "at": "2026-10-26T23:01:24.030Z",
+  "input": {
+    "tool": "get_order_status",
+    "access": "read",
+    "screen": {
+      "name": "Order Status",
+      "url": "/Orders/Status.aspx",
+      "title": "Contoso Order Entry - Order Status"
+    },
+    "missing": {
+      "key": "lookUp",
+      "intent": "the \"Look Up\" button",
+      "op": "click",
+      "oldLocators": [
+        {
+          "by": "role",
+          "role": "button",
+          "name": "Look Up"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_btnLookup"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$btnLookup"
+        },
+        {
+          "by": "text",
+          "text": "Look Up",
+          "exact": true
+        }
+      ],
+      "kind": "button",
+      "text": "Look Up"
+    },
+    "candidates": [
+      {
+        "ref": "e7",
+        "kind": "button",
+        "tag": "input",
+        "type": "submit",
+        "id": "ctl00_MainContent_btnFind",
+        "name": "ctl00$MainContent$btnFind",
+        "text": "Find",
+        "section": "Find Order"
+      }
+    ]
+  },
+  "output": {
+    "reason": "The Find button sits next to Sales Order No. in Find Order where Look Up was and performs the same order lookup.",
+    "ref": "e7"
+  }
+}

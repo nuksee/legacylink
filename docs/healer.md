@@ -42,6 +42,8 @@ The healer asks Muse Spark through the same client as the explorer and learner, 
 | `replay` | Recorded answers only. Use it for rehearsals and the demo itself after one live run. |
 | `heuristic` (default without a key) | The rule-based stand-in ([src/model/heal-heuristic.ts](../src/model/heal-heuristic.ts)). |
 
+[examples/contoso/model-cache/](../examples/contoso/model-cache/) holds live Muse Spark answers recorded on 2026-10-26 for the three demo tasks' learn calls and every heal in the demo sequence: Rename on, Rename off (heal back), Rename + Move on, all off, each followed by `create_sales_order`, `get_order_status` and `get_customer_details`. Copy the folder into `.legacylink/` with the tools and run with `--model replay`: every heal then comes from Muse Spark's recorded answer with no network, and a heal the recordings don't cover falls back to the stand-in, as below.
+
 If a live or replay call fails (network, API error, no recording, an answer that fails validation twice), the healer says so on stderr and uses the stand-in, so a flaky API can't break the demo. The console badge shows which one decided.
 
 ## How a heal works

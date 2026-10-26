@@ -1,0 +1,976 @@
+{
+  "prompt": "learn-task",
+  "model": "muse-spark-1.3",
+  "inputHash": "18755b3af820de7264d4cb3c73a358d2",
+  "at": "2026-10-26T22:59:41.029Z",
+  "input": {
+    "task": "Create a sales order for a customer with up to three product lines",
+    "graph": {
+      "app": "Contoso Order Entry",
+      "exploredAt": "2026-10-26T20:44:01.824Z",
+      "screens": [
+        {
+          "id": "log-in",
+          "name": "Log In",
+          "purpose": "Sign-in screen for the application.",
+          "url": "/Login.aspx",
+          "requiresLogin": false,
+          "elements": [
+            {
+              "key": "userName",
+              "kind": "input",
+              "intent": "the value for \"User Name\"",
+              "label": "User Name:"
+            },
+            {
+              "key": "password",
+              "kind": "input",
+              "intent": "the password to sign in with",
+              "label": "Password:"
+            },
+            {
+              "key": "logIn",
+              "kind": "button",
+              "intent": "the \"Log In\" button",
+              "role": "navigate"
+            }
+          ]
+        },
+        {
+          "id": "main-menu",
+          "name": "Main Menu",
+          "purpose": "Menu screen that links to Customer Inquiry, Order Entry, Order Status.",
+          "url": "/Default.aspx",
+          "requiresLogin": true,
+          "elements": [
+            {
+              "key": "logOutLink",
+              "kind": "link",
+              "intent": "opens \"Log Out\"",
+              "role": "navigate"
+            },
+            {
+              "key": "homeLink",
+              "kind": "link",
+              "intent": "opens \"Home\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customersLink",
+              "kind": "link",
+              "intent": "opens \"Customers\"",
+              "role": "navigate"
+            },
+            {
+              "key": "newOrderLink",
+              "kind": "link",
+              "intent": "opens \"New Order\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderStatusLink",
+              "kind": "link",
+              "intent": "opens \"Order Status\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customerInquiryLink",
+              "kind": "link",
+              "intent": "opens \"Customer Inquiry\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderEntryLink",
+              "kind": "link",
+              "intent": "opens \"Order Entry\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderStatusLink2",
+              "kind": "link",
+              "intent": "opens \"Order Status\"",
+              "role": "navigate"
+            }
+          ]
+        },
+        {
+          "id": "customer-inquiry",
+          "name": "Customer Inquiry",
+          "purpose": "Search by Customer # or Name contains and view the matching records.",
+          "url": "/Customers/Search.aspx",
+          "requiresLogin": true,
+          "elements": [
+            {
+              "key": "logOutLink",
+              "kind": "link",
+              "intent": "opens \"Log Out\"",
+              "role": "navigate"
+            },
+            {
+              "key": "homeLink",
+              "kind": "link",
+              "intent": "opens \"Home\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customersLink",
+              "kind": "link",
+              "intent": "opens \"Customers\"",
+              "role": "navigate"
+            },
+            {
+              "key": "newOrderLink",
+              "kind": "link",
+              "intent": "opens \"New Order\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderStatusLink",
+              "kind": "link",
+              "intent": "opens \"Order Status\"",
+              "role": "navigate"
+            },
+            {
+              "key": "searchId",
+              "kind": "input",
+              "intent": "the value for \"Customer #\"",
+              "label": "Customer #:",
+              "maxLength": 5
+            },
+            {
+              "key": "searchName",
+              "kind": "input",
+              "intent": "the value for \"Name contains\"",
+              "label": "Name contains:"
+            },
+            {
+              "key": "search",
+              "kind": "button",
+              "intent": "the \"Search\" button",
+              "role": "search"
+            },
+            {
+              "key": "customersGrid",
+              "kind": "grid",
+              "intent": "table with columns Customer #, Name, City, State, Phone"
+            },
+            {
+              "key": "customersSelectLink",
+              "kind": "gridLink",
+              "intent": "opens the selected row from the \"Select\" column",
+              "role": "navigate"
+            }
+          ]
+        },
+        {
+          "id": "new-sales-order",
+          "name": "New Sales Order",
+          "purpose": "Form to enter and save a record on the New Sales Order screen.",
+          "url": "/Orders/New.aspx",
+          "requiresLogin": true,
+          "elements": [
+            {
+              "key": "logOutLink",
+              "kind": "link",
+              "intent": "opens \"Log Out\"",
+              "role": "navigate"
+            },
+            {
+              "key": "homeLink",
+              "kind": "link",
+              "intent": "opens \"Home\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customersLink",
+              "kind": "link",
+              "intent": "opens \"Customers\"",
+              "role": "navigate"
+            },
+            {
+              "key": "newOrderLink",
+              "kind": "link",
+              "intent": "opens \"New Order\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderStatusLink",
+              "kind": "link",
+              "intent": "opens \"Order Status\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customerId",
+              "kind": "input",
+              "intent": "the value for \"Customer #\"",
+              "label": "Customer #:",
+              "required": true,
+              "maxLength": 5
+            },
+            {
+              "key": "shipTo",
+              "kind": "textarea",
+              "intent": "the value for \"Ship To\"",
+              "label": "Ship To:",
+              "required": true
+            },
+            {
+              "key": "poNumber",
+              "kind": "input",
+              "intent": "the value for \"PO Number\"",
+              "label": "PO Number:",
+              "maxLength": 20
+            },
+            {
+              "key": "shipVia",
+              "kind": "select",
+              "intent": "a choice for \"Ship Via\" (Ground, 2nd Day Air, Next Day Air, ...)",
+              "label": "Ship Via:",
+              "options": [
+                {
+                  "value": "Ground",
+                  "text": "Ground"
+                },
+                {
+                  "value": "2nd Day Air",
+                  "text": "2nd Day Air"
+                },
+                {
+                  "value": "Next Day Air",
+                  "text": "Next Day Air"
+                },
+                {
+                  "value": "Will Call",
+                  "text": "Will Call"
+                }
+              ]
+            },
+            {
+              "key": "linesGrid",
+              "kind": "grid",
+              "intent": "table with columns Line, Product, Qty"
+            },
+            {
+              "key": "product1",
+              "kind": "select",
+              "intent": "a choice for \"Product (row 1)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+              "label": "Product (row 1)",
+              "options": [
+                {
+                  "value": "",
+                  "text": "-- Select --"
+                },
+                {
+                  "value": "P-100",
+                  "text": "P-100 Widget, Standard ($4.50)"
+                },
+                {
+                  "value": "P-110",
+                  "text": "P-110 Widget, Deluxe ($7.25)"
+                },
+                {
+                  "value": "P-200",
+                  "text": "P-200 Gear Assembly ($18.00)"
+                },
+                {
+                  "value": "P-300",
+                  "text": "P-300 Bearing Kit ($12.40)"
+                },
+                {
+                  "value": "P-400",
+                  "text": "P-400 Hydraulic Hose 6ft ($22.95)"
+                }
+              ]
+            },
+            {
+              "key": "qty1",
+              "kind": "input",
+              "intent": "the value for \"Qty (row 1)\"",
+              "label": "Qty (row 1)",
+              "maxLength": 3
+            },
+            {
+              "key": "product2",
+              "kind": "select",
+              "intent": "a choice for \"Product (row 2)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+              "label": "Product (row 2)",
+              "options": [
+                {
+                  "value": "",
+                  "text": "-- Select --"
+                },
+                {
+                  "value": "P-100",
+                  "text": "P-100 Widget, Standard ($4.50)"
+                },
+                {
+                  "value": "P-110",
+                  "text": "P-110 Widget, Deluxe ($7.25)"
+                },
+                {
+                  "value": "P-200",
+                  "text": "P-200 Gear Assembly ($18.00)"
+                },
+                {
+                  "value": "P-300",
+                  "text": "P-300 Bearing Kit ($12.40)"
+                },
+                {
+                  "value": "P-400",
+                  "text": "P-400 Hydraulic Hose 6ft ($22.95)"
+                }
+              ]
+            },
+            {
+              "key": "qty2",
+              "kind": "input",
+              "intent": "the value for \"Qty (row 2)\"",
+              "label": "Qty (row 2)",
+              "maxLength": 3
+            },
+            {
+              "key": "product3",
+              "kind": "select",
+              "intent": "a choice for \"Product (row 3)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+              "label": "Product (row 3)",
+              "options": [
+                {
+                  "value": "",
+                  "text": "-- Select --"
+                },
+                {
+                  "value": "P-100",
+                  "text": "P-100 Widget, Standard ($4.50)"
+                },
+                {
+                  "value": "P-110",
+                  "text": "P-110 Widget, Deluxe ($7.25)"
+                },
+                {
+                  "value": "P-200",
+                  "text": "P-200 Gear Assembly ($18.00)"
+                },
+                {
+                  "value": "P-300",
+                  "text": "P-300 Bearing Kit ($12.40)"
+                },
+                {
+                  "value": "P-400",
+                  "text": "P-400 Hydraulic Hose 6ft ($22.95)"
+                }
+              ]
+            },
+            {
+              "key": "qty3",
+              "kind": "input",
+              "intent": "the value for \"Qty (row 3)\"",
+              "label": "Qty (row 3)",
+              "maxLength": 3
+            },
+            {
+              "key": "cancel",
+              "kind": "button",
+              "intent": "the \"Cancel\" button",
+              "role": "cancel"
+            },
+            {
+              "key": "saveOrder",
+              "kind": "button",
+              "intent": "the \"Save Order\" button",
+              "role": "commit"
+            }
+          ]
+        },
+        {
+          "id": "order-status",
+          "name": "Order Status",
+          "purpose": "Search by Order # and view the matching records.",
+          "url": "/Orders/Status.aspx",
+          "requiresLogin": true,
+          "elements": [
+            {
+              "key": "logOutLink",
+              "kind": "link",
+              "intent": "opens \"Log Out\"",
+              "role": "navigate"
+            },
+            {
+              "key": "homeLink",
+              "kind": "link",
+              "intent": "opens \"Home\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customersLink",
+              "kind": "link",
+              "intent": "opens \"Customers\"",
+              "role": "navigate"
+            },
+            {
+              "key": "newOrderLink",
+              "kind": "link",
+              "intent": "opens \"New Order\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderStatusLink",
+              "kind": "link",
+              "intent": "opens \"Order Status\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderNumber",
+              "kind": "input",
+              "intent": "the value for \"Order #\"",
+              "label": "Order #:",
+              "maxLength": 8
+            },
+            {
+              "key": "lookUp",
+              "kind": "button",
+              "intent": "the \"Look Up\" button",
+              "role": "search"
+            },
+            {
+              "key": "orderNumber2",
+              "kind": "output",
+              "intent": "shows the Order #",
+              "label": "Order #"
+            },
+            {
+              "key": "customer",
+              "kind": "output",
+              "intent": "shows the Customer",
+              "label": "Customer"
+            },
+            {
+              "key": "status",
+              "kind": "output",
+              "intent": "shows the Status",
+              "label": "Status"
+            },
+            {
+              "key": "orderDate",
+              "kind": "output",
+              "intent": "shows the Order Date",
+              "label": "Order Date"
+            },
+            {
+              "key": "shipDate",
+              "kind": "output",
+              "intent": "shows the Ship Date",
+              "label": "Ship Date"
+            },
+            {
+              "key": "shipVia",
+              "kind": "output",
+              "intent": "shows the Ship Via",
+              "label": "Ship Via"
+            },
+            {
+              "key": "poNumber",
+              "kind": "output",
+              "intent": "shows the PO Number",
+              "label": "PO Number"
+            },
+            {
+              "key": "total",
+              "kind": "output",
+              "intent": "shows the Order Total",
+              "label": "Order Total"
+            },
+            {
+              "key": "linesGrid",
+              "kind": "grid",
+              "intent": "table with columns SKU, Description, Qty, Unit Price, Extended"
+            }
+          ]
+        },
+        {
+          "id": "customer-details",
+          "name": "Customer Details",
+          "purpose": "Shows Customer #, Name, Contact, Phone and more for one record.",
+          "url": "/Customers/Details.aspx",
+          "requiresLogin": true,
+          "elements": [
+            {
+              "key": "logOutLink",
+              "kind": "link",
+              "intent": "opens \"Log Out\"",
+              "role": "navigate"
+            },
+            {
+              "key": "homeLink",
+              "kind": "link",
+              "intent": "opens \"Home\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customersLink",
+              "kind": "link",
+              "intent": "opens \"Customers\"",
+              "role": "navigate"
+            },
+            {
+              "key": "newOrderLink",
+              "kind": "link",
+              "intent": "opens \"New Order\"",
+              "role": "navigate"
+            },
+            {
+              "key": "orderStatusLink",
+              "kind": "link",
+              "intent": "opens \"Order Status\"",
+              "role": "navigate"
+            },
+            {
+              "key": "customerId",
+              "kind": "output",
+              "intent": "shows the Customer #",
+              "label": "Customer #"
+            },
+            {
+              "key": "name",
+              "kind": "output",
+              "intent": "shows the Name",
+              "label": "Name"
+            },
+            {
+              "key": "contact",
+              "kind": "output",
+              "intent": "shows the Contact",
+              "label": "Contact"
+            },
+            {
+              "key": "phone",
+              "kind": "output",
+              "intent": "shows the Phone",
+              "label": "Phone"
+            },
+            {
+              "key": "cityState",
+              "kind": "output",
+              "intent": "shows the City / State",
+              "label": "City / State"
+            },
+            {
+              "key": "creditLimit",
+              "kind": "output",
+              "intent": "shows the Credit Limit",
+              "label": "Credit Limit"
+            },
+            {
+              "key": "balance",
+              "kind": "output",
+              "intent": "shows the Balance",
+              "label": "Balance"
+            },
+            {
+              "key": "available",
+              "kind": "output",
+              "intent": "shows the Available Credit",
+              "label": "Available Credit"
+            },
+            {
+              "key": "ordersGrid",
+              "kind": "grid",
+              "intent": "table with columns Order #, Date, Status, Total"
+            },
+            {
+              "key": "ordersOrderNumberLink",
+              "kind": "gridLink",
+              "intent": "opens the selected row from the \"Order #\" column",
+              "label": "Order #",
+              "role": "navigate"
+            },
+            {
+              "key": "backToSearchLink",
+              "kind": "link",
+              "intent": "opens \"Back to search\"",
+              "role": "navigate"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "log-in:logIn",
+          "from": "log-in",
+          "to": "main-menu",
+          "via": "logIn",
+          "kind": "postback",
+          "fields": [
+            "userName",
+            "password"
+          ]
+        },
+        {
+          "id": "main-menu:homeLink",
+          "from": "main-menu",
+          "to": "main-menu",
+          "via": "homeLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "main-menu:customersLink",
+          "from": "main-menu",
+          "to": "customer-inquiry",
+          "via": "customersLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "main-menu:newOrderLink",
+          "from": "main-menu",
+          "to": "new-sales-order",
+          "via": "newOrderLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "main-menu:orderStatusLink",
+          "from": "main-menu",
+          "to": "order-status",
+          "via": "orderStatusLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "main-menu:customerInquiryLink",
+          "from": "main-menu",
+          "to": "customer-inquiry",
+          "via": "customerInquiryLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "main-menu:orderEntryLink",
+          "from": "main-menu",
+          "to": "new-sales-order",
+          "via": "orderEntryLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "main-menu:orderStatusLink2",
+          "from": "main-menu",
+          "to": "order-status",
+          "via": "orderStatusLink2",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-inquiry:homeLink",
+          "from": "customer-inquiry",
+          "to": "main-menu",
+          "via": "homeLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-inquiry:customersLink",
+          "from": "customer-inquiry",
+          "to": "customer-inquiry",
+          "via": "customersLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-inquiry:newOrderLink",
+          "from": "customer-inquiry",
+          "to": "new-sales-order",
+          "via": "newOrderLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-inquiry:orderStatusLink",
+          "from": "customer-inquiry",
+          "to": "order-status",
+          "via": "orderStatusLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-inquiry:search",
+          "from": "customer-inquiry",
+          "to": "customer-inquiry",
+          "via": "search",
+          "kind": "search"
+        },
+        {
+          "id": "new-sales-order:homeLink",
+          "from": "new-sales-order",
+          "to": "main-menu",
+          "via": "homeLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "new-sales-order:customersLink",
+          "from": "new-sales-order",
+          "to": "customer-inquiry",
+          "via": "customersLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "new-sales-order:newOrderLink",
+          "from": "new-sales-order",
+          "to": "new-sales-order",
+          "via": "newOrderLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "new-sales-order:orderStatusLink",
+          "from": "new-sales-order",
+          "to": "order-status",
+          "via": "orderStatusLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "new-sales-order:cancel",
+          "from": "new-sales-order",
+          "to": "main-menu",
+          "via": "cancel",
+          "kind": "postback"
+        },
+        {
+          "id": "new-sales-order:saveOrder",
+          "from": "new-sales-order",
+          "to": null,
+          "via": "saveOrder",
+          "kind": "commit",
+          "fields": [
+            "customerId",
+            "shipTo",
+            "poNumber",
+            "shipVia",
+            "product1",
+            "qty1",
+            "product2",
+            "qty2",
+            "product3",
+            "qty3"
+          ]
+        },
+        {
+          "id": "order-status:homeLink",
+          "from": "order-status",
+          "to": "main-menu",
+          "via": "homeLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "order-status:customersLink",
+          "from": "order-status",
+          "to": "customer-inquiry",
+          "via": "customersLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "order-status:newOrderLink",
+          "from": "order-status",
+          "to": "new-sales-order",
+          "via": "newOrderLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "order-status:orderStatusLink",
+          "from": "order-status",
+          "to": "order-status",
+          "via": "orderStatusLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "order-status:lookUp",
+          "from": "order-status",
+          "to": "order-status",
+          "via": "lookUp",
+          "kind": "search",
+          "fields": [
+            "orderNumber"
+          ]
+        },
+        {
+          "id": "customer-inquiry:customersSelectLink",
+          "from": "customer-inquiry",
+          "to": "customer-details",
+          "via": "customersSelectLink",
+          "kind": "postback"
+        },
+        {
+          "id": "customer-details:homeLink",
+          "from": "customer-details",
+          "to": "main-menu",
+          "via": "homeLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-details:customersLink",
+          "from": "customer-details",
+          "to": "customer-inquiry",
+          "via": "customersLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-details:newOrderLink",
+          "from": "customer-details",
+          "to": "new-sales-order",
+          "via": "newOrderLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-details:orderStatusLink",
+          "from": "customer-details",
+          "to": "order-status",
+          "via": "orderStatusLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-details:ordersOrderNumberLink",
+          "from": "customer-details",
+          "to": "order-status",
+          "via": "ordersOrderNumberLink",
+          "kind": "navigate"
+        },
+        {
+          "id": "customer-details:backToSearchLink",
+          "from": "customer-details",
+          "to": "customer-inquiry",
+          "via": "backToSearchLink",
+          "kind": "navigate"
+        }
+      ]
+    }
+  },
+  "output": {
+    "access": "write",
+    "description": "Creates a new sales order for a customer with up to three product lines. Returns the new order number. A person must approve it before it is saved.",
+    "inputSchema": {
+      "properties": {
+        "customerId": {
+          "description": "The customer number the order is for.",
+          "maxLength": 5,
+          "type": "string"
+        },
+        "lines": {
+          "description": "Product lines to order, up to three.",
+          "items": {
+            "properties": {
+              "productId": {
+                "description": "The product code for the line.",
+                "enum": [
+                  "P-100",
+                  "P-110",
+                  "P-200",
+                  "P-300",
+                  "P-400"
+                ],
+                "type": "string"
+              },
+              "quantity": {
+                "description": "The quantity for the line.",
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "productId",
+              "quantity"
+            ],
+            "type": "object"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "type": "array"
+        },
+        "poNumber": {
+          "description": "The customer PO number for the order.",
+          "maxLength": 20,
+          "type": "string"
+        },
+        "shipTo": {
+          "description": "The ship-to address for the order.",
+          "type": "string"
+        },
+        "shipVia": {
+          "description": "How to ship the order.",
+          "enum": [
+            "Ground",
+            "2nd Day Air",
+            "Next Day Air",
+            "Will Call"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "customerId",
+        "shipTo",
+        "lines"
+      ],
+      "type": "object"
+    },
+    "name": "create_sales_order",
+    "outputSchema": {
+      "properties": {
+        "orderNumber": {
+          "description": "The new sales order number.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderNumber"
+      ],
+      "type": "object"
+    },
+    "steps": [
+      {
+        "op": "open",
+        "screen": "new-sales-order"
+      },
+      {
+        "element": "customerId",
+        "op": "fill",
+        "screen": "new-sales-order",
+        "value": "$input.customerId"
+      },
+      {
+        "element": "shipTo",
+        "op": "fill",
+        "screen": "new-sales-order",
+        "value": "$input.shipTo"
+      },
+      {
+        "element": "poNumber",
+        "op": "fill",
+        "screen": "new-sales-order",
+        "value": "$input.poNumber"
+      },
+      {
+        "element": "shipVia",
+        "op": "select",
+        "screen": "new-sales-order",
+        "value": "$input.shipVia"
+      },
+      {
+        "items": "$input.lines",
+        "op": "forEach",
+        "steps": [
+          {
+            "element": "product$line",
+            "op": "select",
+            "screen": "new-sales-order",
+            "value": "$item.productId"
+          },
+          {
+            "element": "qty$line",
+            "op": "fill",
+            "screen": "new-sales-order",
+            "value": "$item.quantity"
+          }
+        ]
+      },
+      {
+        "edge": "new-sales-order:saveOrder",
+        "element": "saveOrder",
+        "op": "click",
+        "screen": "new-sales-order"
+      },
+      {
+        "intent": "the new order number",
+        "into": "orderNumber",
+        "op": "readAfterCommit"
+      }
+    ]
+  }
+}
