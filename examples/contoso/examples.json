@@ -1,0 +1,11 @@
+{
+  "get_customer_details": { "customerId": "C1003" },
+  "get_order_status": { "orderNumber": "SO-10042" },
+  "create_sales_order": {
+    "customerId": "C1003",
+    "shipTo": "Adventure Works\n22 Harbor Way\nPortland, OR 97209",
+    "poNumber": "PO-7731",
+    "shipVia": "2nd Day Air",
+    "lines": [{ "product": "P-200", "qty": 5 }, { "product": "P-100", "qty": 2 }]
+  }
+}

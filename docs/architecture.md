@@ -222,12 +222,14 @@ interface ToolSpec {
   access: 'read' | 'write';
   inputSchema: JSONSchema;         // draft 2020-12
   outputSchema: JSONSchema;
+  screens: Record<string, { url: string; title: string; heading?: string }>;  // for goto and waitForScreen
   steps: Step[];
   postcondition: Postcondition;
   errors: ErrorRule[];             // app-level failures that are not drift
   provenance: {
     task: string;                  // the one-sentence description
     graphExploredAt: string;
+    learnedAt: string;
     compiledAt: string;
     model: string;                 // e.g. "muse-spark-1.1"
     healedFrom?: number;           // previous version, if this came from a heal
@@ -247,7 +249,7 @@ type Step =
   | { op: 'fill'; target: Target; value: Expr }
   | { op: 'select'; target: Target; value: Expr }
   | { op: 'click'; target: Target; commit?: true }                     // commit: true marks the approval point
-  | { op: 'clickRow'; grid: Target; match: { column: string; value: Expr }; link: string }
+  | { op: 'clickRow'; grid: Target; match: { column: string; value: Expr }; link: Target }  // link is found inside the matched row
   | { op: 'waitForScreen'; screen: string }
   | { op: 'extract'; target: Target; into: string; parse?: 'text' | 'money' | 'date' | 'int' }
   | { op: 'extractTable'; target: Target; into: string; columns: Record<string, string> }
@@ -255,8 +257,10 @@ type Step =
 
 interface Target { key: string; intent: string; locators: Locator[] }
 
-type Expr = string;   // "$input.customerId", "$item.sku", or a literal
+type Expr = string;   // "$input.customerId", "$item.sku", "$output.orderNumber", or a literal
 ```
+
+Implementation: [src/formats/tool.ts](../src/formats/tool.ts); compiler, runner and server: [compiler.md](compiler.md).
 
 The runner maps each op to Playwright calls with fixed timeouts (5 s per action, 15 s per screen wait). An optional `legacylink export` command writes a spec out as a readable Playwright `.spec.ts` for review, but the JSON is what runs.
 
@@ -274,7 +278,9 @@ type Check =
   | { check: 'visible'; target: Target }
   | { check: 'textMatches'; target: Target; pattern: string }          // regex
   | { check: 'outputMatches'; path: string; equals?: Expr; pattern?: string }
-  | { check: 'readBack'; tool: string; input: Record<string, Expr>; expect: Record<string, Expr> };
+  | { check: 'readBack'; tool: string; input: Record<string, Expr>; expect: Record<string, Expect> };
+
+type Expect = { equals: Expr } | { prefix: Expr };   // prefix: "C1003" matches "C1003 - Adventure Works"
 ```
 
 `readBack` is how a write proves itself: after `create_sales_order`, the runner calls `get_order_status` with the new order number and checks the customer and status. The UI saying "saved" is one signal; the order being findable is the proof.
@@ -294,6 +300,8 @@ interface ErrorRule {
 `$text` in `message` is the matched element's text. The runner checks error rules after any commit or search step and before the post-condition. A matched rule ends the run as `app_error` with the code and message.
 
 ### Example: `create_sales_order`
+
+This is the design sketch. The compiled spec is [examples/contoso/tools/create_sales_order@1.json](../examples/contoso/tools/create_sales_order@1.json).
 
 ```json
 {
