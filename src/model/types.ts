@@ -1,7 +1,8 @@
-// What the explorer asks the model, and the JSON it must answer with. Each
+// What the explorer and learner ask the model, and the JSON it must answer with. Each
 // call has a JSON Schema; answers are validated before they're used.
 
 import { ELEMENT_ROLES, type ElementKind, type ElementRole } from '../formats/graph.js';
+import { taskBodySchema, type LearnGraph, type TaskBody } from '../formats/task.js';
 
 // One element as the model sees it: the facts, no locators.
 export interface ElementSummary {
@@ -102,3 +103,18 @@ export interface ExplorerModel {
   analyzeScreen(input: AnalyzeScreenInput): Promise<AnalyzeScreenOutput>;
   searchValues(input: SearchValuesInput): Promise<SearchValuesOutput>;
 }
+
+export interface LearnTaskInput {
+  task: string; // the one-sentence description
+  graph: LearnGraph;
+}
+
+export type LearnTaskOutput = TaskBody;
+export const learnTaskSchema = taskBodySchema;
+
+export interface LearnerModel {
+  readonly id: string;
+  learnTask(input: LearnTaskInput): Promise<LearnTaskOutput>;
+}
+
+export type Model = ExplorerModel & LearnerModel;

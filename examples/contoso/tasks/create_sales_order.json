@@ -1,0 +1,152 @@
+{
+  "formatVersion": 1,
+  "name": "create_sales_order",
+  "description": "Key a new sales order into Contoso Order Entry. A person must approve it before it is saved.",
+  "access": "write",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "customerId",
+      "shipTo",
+      "lines"
+    ],
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 5,
+        "description": "Customer #"
+      },
+      "shipTo": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Ship To"
+      },
+      "poNumber": {
+        "type": "string",
+        "maxLength": 20,
+        "description": "PO Number"
+      },
+      "shipVia": {
+        "enum": [
+          "Ground",
+          "2nd Day Air",
+          "Next Day Air",
+          "Will Call"
+        ],
+        "description": "Ship Via"
+      },
+      "lines": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 3,
+        "description": "rows of the line grid, up to 3",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "product",
+            "qty"
+          ],
+          "properties": {
+            "product": {
+              "enum": [
+                "P-100",
+                "P-110",
+                "P-200",
+                "P-300",
+                "P-400"
+              ],
+              "description": "Product"
+            },
+            "qty": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 999,
+              "description": "Qty"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "orderNumber"
+    ],
+    "properties": {
+      "orderNumber": {
+        "type": "string",
+        "minLength": 1,
+        "description": "number of the sales order just saved"
+      }
+    }
+  },
+  "steps": [
+    {
+      "op": "open",
+      "screen": "new-sales-order"
+    },
+    {
+      "op": "fill",
+      "screen": "new-sales-order",
+      "element": "customerId",
+      "value": "$input.customerId"
+    },
+    {
+      "op": "fill",
+      "screen": "new-sales-order",
+      "element": "shipTo",
+      "value": "$input.shipTo"
+    },
+    {
+      "op": "fill",
+      "screen": "new-sales-order",
+      "element": "poNumber",
+      "value": "$input.poNumber"
+    },
+    {
+      "op": "select",
+      "screen": "new-sales-order",
+      "element": "shipVia",
+      "value": "$input.shipVia"
+    },
+    {
+      "op": "forEach",
+      "items": "$input.lines",
+      "steps": [
+        {
+          "op": "select",
+          "screen": "new-sales-order",
+          "element": "product$line",
+          "value": "$item.product"
+        },
+        {
+          "op": "fill",
+          "screen": "new-sales-order",
+          "element": "qty$line",
+          "value": "$item.qty"
+        }
+      ]
+    },
+    {
+      "op": "click",
+      "screen": "new-sales-order",
+      "element": "saveOrder",
+      "edge": "new-sales-order:saveOrder"
+    },
+    {
+      "op": "readAfterCommit",
+      "into": "orderNumber",
+      "intent": "the number of the sales order just saved"
+    }
+  ],
+  "provenance": {
+    "task": "Create a sales order for a customer with up to three product lines",
+    "graphExploredAt": "2026-10-26T20:44:01.824Z",
+    "learnedAt": "2026-10-26T21:09:06.894Z",
+    "model": "heuristic"
+  }
+}

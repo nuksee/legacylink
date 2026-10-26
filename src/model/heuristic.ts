@@ -3,26 +3,14 @@
 // tests, CI and offline runs; the live model gives better names and intents.
 
 import type { ElementRole } from '../formats/graph.js';
-import type { AnalyzeScreenInput, AnalyzeScreenOutput, ElementSummary, ExplorerModel, SearchValuesInput, SearchValuesOutput } from './types.js';
+import { learnTaskHeuristic } from './learn-heuristic.js';
+import { camel, caption, words } from './text.js';
+import type { AnalyzeScreenInput, AnalyzeScreenOutput, ElementSummary, Model, SearchValuesInput, SearchValuesOutput } from './types.js';
 
 export const COMMIT_PATTERN = /^(save|submit|post|delete|remove|update|create|add|apply|approve|confirm|send|process|place|cancel \w+|void|ok)\b/i;
 const CANCEL_PATTERN = /^(cancel|close|back|clear|reset)$/i;
 const SEARCH_PATTERN = /\b(search|find|look ?up|go|filter|query|retrieve|refresh)\b/i;
 export const LOGOUT_PATTERN = /\b(log ?out|log ?off|sign ?out|sign ?off)\b/i;
-
-const words = (s: string) =>
-  s
-    .replace(/#/g, ' number ')
-    .replace(/\bno\.?(?=\s|$)/gi, ' number ')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .split(/[^A-Za-z0-9]+/)
-    .filter(Boolean);
-
-export const camel = (s: string) => {
-  const w = words(s).map((x) => x.toLowerCase());
-  const out = w.map((x, i) => (i ? x[0]!.toUpperCase() + x.slice(1) : x)).join('');
-  return /^[a-z]/.test(out) ? out : `x${out}`;
-};
 
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 
@@ -33,7 +21,6 @@ function keyFromId(id: string): string | undefined {
   return bare ? camel(bare) : undefined;
 }
 
-const caption = (s: string | undefined) => (s ?? '').replace(/[:*]+$/, '').replace(/^[«»<>\s]+|[«»<>\s]+$/g, '').trim();
 
 function baseKey(el: ElementSummary, gridKeys: Map<string, string>): string {
   switch (el.kind) {
@@ -98,7 +85,9 @@ function purposeOf(name: string, els: ElementSummary[], roles: Map<string, Eleme
   return `Menu screen that links to ${(content.length ? content : links).map((e) => caption(e.text)).slice(0, 4).join(', ')}.`;
 }
 
-export const heuristicModel: ExplorerModel = {
+export { camel };
+
+export const heuristicModel: Model = {
   id: 'heuristic',
 
   async analyzeScreen(input: AnalyzeScreenInput): Promise<AnalyzeScreenOutput> {
@@ -151,4 +140,6 @@ export const heuristicModel: ExplorerModel = {
     }
     return { values: best ? [{ key: best.key, value: best.value }] : [] };
   },
+
+  learnTask: async (input) => learnTaskHeuristic(input),
 };

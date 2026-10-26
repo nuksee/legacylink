@@ -91,6 +91,37 @@ Output: a learned task: the screen path, which controls are inputs, which elemen
 
 Muse Spark gets the graph (not screenshots, to keep the prompt small) and the sentence. It returns the learned task as JSON. The learner validates that every screen, control and edge it names exists in the graph, and retries once with the validation errors if not.
 
+#### The learned task
+
+The learned task is the hand-off from the learner to the compiler, one file per task: `tasks/get_order_status.json`. It names screens, element keys and edge ids from the graph and carries no locators; the compiler copies those in when it builds the tool spec. Types and JSON Schema: [src/formats/task.ts](../src/formats/task.ts).
+
+```ts
+interface LearnedTask {
+  formatVersion: 1;
+  name: string;                    // future MCP tool name, snake_case
+  description: string;
+  access: 'read' | 'write';
+  inputSchema: JSONSchema;         // draft, becomes the tool's inputSchema
+  outputSchema: JSONSchema;
+  steps: TaskStep[];
+  provenance: { task: string; graphExploredAt: string; learnedAt: string; model: string };
+}
+
+type TaskStep =
+  | { op: 'open'; screen: string }                                         // load the screen's URL
+  | { op: 'fill' | 'select'; screen: string; element: string; value: Expr }
+  | { op: 'click'; screen: string; element: string; edge: string }        // follows a graph edge
+  | { op: 'clickRow'; screen: string; element: string; edge: string; match: { column: string; value: Expr } }
+  | { op: 'forEach'; items: Expr; steps: (fill | select)[] }               // element keys may use $line: "product$line"
+  | { op: 'read'; screen: string; element: string; into: string; parse?: 'text' | 'money' | 'date' | 'int' }
+  | { op: 'readTable'; screen: string; element: string; into: string; columns: Record<string, string> }
+  | { op: 'readAfterCommit'; into: string; intent: string };              // only seen after the commit
+```
+
+The commit step is the `click` whose edge has kind `commit`; the compiler marks it `commit: true`. `readAfterCommit` exists because the explorer never commits, so a write's result (Contoso's new order number) is not in the graph. The compiler finds it by its `intent` during the verify run.
+
+The learner's guard (`checkTaskBody` in [src/formats/validate.ts](../src/formats/validate.ts)) rejects a task unless: every screen, element and edge exists; each step is on the screen the steps before it leave the app on, and each click's edge starts from that screen via that element; fills target inputs, selects target selects (with `enum` values that are real options), reads target outputs; `$line` rows exist up to the array's `maxItems`; every input is used and every output produced exactly once; both schemas compile; a read never presses a commit control; and a write presses exactly one, with only `readAfterCommit` after it.
+
 ### 3. Compile
 
 Input: learned task. Output: tool spec (format 2), registered as version 1.
