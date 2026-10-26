@@ -1,4 +1,4 @@
-// Picks the explorer's model and wraps every call in validation, one retry,
+// Picks the model for the explorer and learner and wraps every call in validation, one retry,
 // the record/replay cache and the run log.
 //
 //   LEGACYLINK_MODEL=live       call Muse Spark; answers are recorded, and a recorded answer is reused
@@ -9,16 +9,19 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { validator } from '../formats/validate.js';
+import { checkTaskBody, validator } from '../formats/validate.js';
 import type { RunLog } from '../runlog/runlog.js';
 import { heuristicModel } from './heuristic.js';
 import { chat, museConfigFromEnv, type MuseConfig } from './muse.js';
 import {
   analyzeScreenSchema,
+  learnTaskSchema,
   searchValuesSchema,
   type AnalyzeScreenInput,
   type AnalyzeScreenOutput,
-  type ExplorerModel,
+  type LearnTaskInput,
+  type LearnTaskOutput,
+  type Model,
   type SearchValuesInput,
   type SearchValuesOutput,
 } from './types.js';
@@ -55,6 +58,7 @@ export class ModelError extends Error {}
 
 const validAnalyze = validator<AnalyzeScreenOutput>(analyzeScreenSchema);
 const validSearch = validator<SearchValuesOutput>(searchValuesSchema);
+const validLearn = validator<LearnTaskOutput>(learnTaskSchema);
 
 function checkAnalyze(input: AnalyzeScreenInput, out: AnalyzeScreenOutput): string[] {
   const refs = new Set(input.elements.map((e) => e.ref));
@@ -78,7 +82,7 @@ function checkSearch(input: SearchValuesInput, out: SearchValuesOutput): string[
   return out.values.filter((v) => !keys.has(v.key)).map((v) => `values: unknown field "${v.key}"`);
 }
 
-export function createExplorerModel(opts: ModelOptions): ExplorerModel & { mode: ModelMode } {
+export function createModel(opts: ModelOptions): Model & { mode: ModelMode } {
   const env = opts.env ?? process.env;
   const cfg = museConfigFromEnv(env);
   const mode: ModelMode = opts.mode ?? (env.LEGACYLINK_MODEL as ModelMode | undefined) ?? (cfg ? 'live' : 'heuristic');
@@ -88,6 +92,7 @@ export function createExplorerModel(opts: ModelOptions): ExplorerModel & { mode:
   const modelId = cfg?.model ?? env.MUSE_MODEL ?? 'muse-spark-1.3';
 
   async function call<I extends object, O>(
+    stage: 'explore' | 'learn',
     promptId: string,
     schemaName: string,
     schema: object,
@@ -101,7 +106,7 @@ export function createExplorerModel(opts: ModelOptions): ExplorerModel & { mode:
     const file = join(opts.cacheDir, `${inputHash}.json`);
     const started = Date.now();
     const log = (tokensIn: number, tokensOut: number, cached: boolean) =>
-      opts.runLog?.append({ type: 'model_call', at: new Date().toISOString(), stage: 'explore', prompt: promptId, inputHash, tokensIn, tokensOut, ms: Date.now() - started, cached });
+      opts.runLog?.append({ type: 'model_call', at: new Date().toISOString(), stage, prompt: promptId, inputHash, tokensIn, tokensOut, ms: Date.now() - started, cached });
 
     const recorded = await readFile(file, 'utf8').then(
       (t) => JSON.parse(t) as { output: unknown },
@@ -152,7 +157,8 @@ export function createExplorerModel(opts: ModelOptions): ExplorerModel & { mode:
   return {
     id: modelId,
     mode,
-    analyzeScreen: (input: AnalyzeScreenInput) => call('explore-screen', 'screen_analysis', analyzeScreenSchema, input, validAnalyze, checkAnalyze),
-    searchValues: (input: SearchValuesInput) => call('explore-search-values', 'search_values', searchValuesSchema, input, validSearch, checkSearch),
+    analyzeScreen: (input: AnalyzeScreenInput) => call('explore', 'explore-screen', 'screen_analysis', analyzeScreenSchema, input, validAnalyze, checkAnalyze),
+    searchValues: (input: SearchValuesInput) => call('explore', 'explore-search-values', 'search_values', searchValuesSchema, input, validSearch, checkSearch),
+    learnTask: (input: LearnTaskInput) => call('learn', 'learn-task', 'learned_task', learnTaskSchema, input, validLearn, (i, out) => checkTaskBody(out, i.graph)),
   };
 }

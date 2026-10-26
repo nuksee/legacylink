@@ -3,7 +3,7 @@ import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import { createExplorerModel, ModelError } from '../src/model/client.js';
+import { createModel, ModelError } from '../src/model/client.js';
 import type { AnalyzeScreenInput } from '../src/model/types.js';
 import { RunLog } from '../src/runlog/runlog.js';
 
@@ -53,13 +53,13 @@ describe('model client', () => {
   });
 
   it('defaults to the heuristic stand-in without an API key', () => {
-    assert.equal(createExplorerModel({ cacheDir: dir, env: {} }).mode, 'heuristic');
-    assert.equal(createExplorerModel({ cacheDir: dir, env }).mode, 'live');
+    assert.equal(createModel({ cacheDir: dir, env: {} }).mode, 'heuristic');
+    assert.equal(createModel({ cacheDir: dir, env }).mode, 'live');
   });
 
   it('retries once with the validation errors, then records the answer', async () => {
     answers.push({ ...good, elements: good.elements.slice(0, 1) }, good);
-    const model = createExplorerModel({ cacheDir: join(dir, 'cache'), env, runLog: new RunLog(join(dir, 'runs')) });
+    const model = createModel({ cacheDir: join(dir, 'cache'), env, runLog: new RunLog(join(dir, 'runs')) });
     assert.deepEqual(await model.analyzeScreen(input), good);
     assert.equal(calls.length, 2);
     assert.equal(calls[0]!.auth, 'Bearer test-key');
@@ -77,8 +77,8 @@ describe('model client', () => {
 
   it('replays a recorded answer with no API call, even with a new screenshot', async () => {
     answers.push(good);
-    await createExplorerModel({ cacheDir: dir, env }).analyzeScreen(input);
-    const replay = createExplorerModel({ cacheDir: dir, mode: 'replay', env: {} });
+    await createModel({ cacheDir: dir, env }).analyzeScreen(input);
+    const replay = createModel({ cacheDir: dir, mode: 'replay', env: {} });
     assert.deepEqual(await replay.analyzeScreen({ ...input, screenshot: 'different' }), good);
     assert.equal(calls.length, 1);
     await assert.rejects(replay.analyzeScreen({ ...input, title: 'Other' }), ModelError);
@@ -86,6 +86,6 @@ describe('model client', () => {
 
   it('fails the stage after two invalid answers', async () => {
     answers.push('not json', { name: 'x' });
-    await assert.rejects(createExplorerModel({ cacheDir: dir, env }).analyzeScreen(input), /failed validation twice/);
+    await assert.rejects(createModel({ cacheDir: dir, env }).analyzeScreen(input), /failed validation twice/);
   });
 });

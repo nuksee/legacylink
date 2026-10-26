@@ -19,10 +19,11 @@ Enterprises still run legacy apps with no API (WinForms, WebForms, Citrix-publis
 
 ## Status
 
-Building. Done so far: the screen graph format and the explorer ([docs/explorer.md](docs/explorer.md)).
+Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)) and the learner ([docs/learner.md](docs/learner.md)).
 
 ```sh
 npm install
 LEGACYLINK_PASSWORD=demo npm run legacylink -- explore --url http://localhost:5080 --user demo
+npm run legacylink -- learn "Get the status of a sales order by its order number"
 npm test
 ```

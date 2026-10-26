@@ -1,0 +1,183 @@
+{
+  "formatVersion": 1,
+  "name": "get_customer_details",
+  "description": "Read the Customer Details screen of Contoso Order Entry for one Customer #. Read-only.",
+  "access": "read",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "customerId"
+    ],
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 5,
+        "description": "Customer #"
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "customerId"
+    ],
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "description": "Customer #"
+      },
+      "name": {
+        "type": "string",
+        "description": "Name"
+      },
+      "contact": {
+        "type": "string",
+        "description": "Contact"
+      },
+      "phone": {
+        "type": "string",
+        "description": "Phone"
+      },
+      "cityState": {
+        "type": "string",
+        "description": "City / State"
+      },
+      "creditLimit": {
+        "type": "number",
+        "description": "Credit Limit"
+      },
+      "balance": {
+        "type": "number",
+        "description": "Balance"
+      },
+      "available": {
+        "type": "number",
+        "description": "Available Credit"
+      },
+      "orders": {
+        "type": "array",
+        "description": "rows of the Order #, Date, Status, Total table",
+        "items": {
+          "type": "object",
+          "properties": {
+            "orderNumber": {
+              "type": "string",
+              "description": "Order #"
+            },
+            "date": {
+              "type": "string",
+              "description": "Date"
+            },
+            "status": {
+              "type": "string",
+              "description": "Status"
+            },
+            "total": {
+              "type": "string",
+              "description": "Total"
+            }
+          }
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "op": "open",
+      "screen": "customer-inquiry"
+    },
+    {
+      "op": "fill",
+      "screen": "customer-inquiry",
+      "element": "searchId",
+      "value": "$input.customerId"
+    },
+    {
+      "op": "click",
+      "screen": "customer-inquiry",
+      "element": "search",
+      "edge": "customer-inquiry:search"
+    },
+    {
+      "op": "clickRow",
+      "screen": "customer-inquiry",
+      "element": "customersSelectLink",
+      "edge": "customer-inquiry:customersSelectLink",
+      "match": {
+        "column": "Customer #",
+        "value": "$input.customerId"
+      }
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "customerId",
+      "into": "customerId"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "name",
+      "into": "name"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "contact",
+      "into": "contact"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "phone",
+      "into": "phone"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "cityState",
+      "into": "cityState"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "creditLimit",
+      "into": "creditLimit",
+      "parse": "money"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "balance",
+      "into": "balance",
+      "parse": "money"
+    },
+    {
+      "op": "read",
+      "screen": "customer-details",
+      "element": "available",
+      "into": "available",
+      "parse": "money"
+    },
+    {
+      "op": "readTable",
+      "screen": "customer-details",
+      "element": "ordersGrid",
+      "into": "orders",
+      "columns": {
+        "orderNumber": "Order #",
+        "date": "Date",
+        "status": "Status",
+        "total": "Total"
+      }
+    }
+  ],
+  "provenance": {
+    "task": "Look up a customer's details, credit and orders by customer number",
+    "graphExploredAt": "2026-10-26T20:44:01.824Z",
+    "learnedAt": "2026-10-26T21:09:04.687Z",
+    "model": "heuristic"
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "formatVersion": 1,
+  "name": "get_order_status",
+  "description": "Read the Order Status screen of Contoso Order Entry for one Order #. Read-only.",
+  "access": "read",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "orderNumber"
+    ],
+    "properties": {
+      "orderNumber": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8,
+        "description": "Order #"
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "orderNumber"
+    ],
+    "properties": {
+      "orderNumber": {
+        "type": "string",
+        "description": "Order #"
+      },
+      "customer": {
+        "type": "string",
+        "description": "Customer"
+      },
+      "status": {
+        "type": "string",
+        "description": "Status"
+      },
+      "orderDate": {
+        "type": "string",
+        "description": "Order Date"
+      },
+      "shipDate": {
+        "type": "string",
+        "description": "Ship Date"
+      },
+      "shipVia": {
+        "type": "string",
+        "description": "Ship Via"
+      },
+      "poNumber": {
+        "type": "string",
+        "description": "PO Number"
+      },
+      "total": {
+        "type": "number",
+        "description": "Order Total"
+      },
+      "lines": {
+        "type": "array",
+        "description": "rows of the SKU, Description, Qty, Unit Price, Extended table",
+        "items": {
+          "type": "object",
+          "properties": {
+            "sku": {
+              "type": "string",
+              "description": "SKU"
+            },
+            "description": {
+              "type": "string",
+              "description": "Description"
+            },
+            "qty": {
+              "type": "string",
+              "description": "Qty"
+            },
+            "unitPrice": {
+              "type": "string",
+              "description": "Unit Price"
+            },
+            "extended": {
+              "type": "string",
+              "description": "Extended"
+            }
+          }
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "op": "open",
+      "screen": "order-status"
+    },
+    {
+      "op": "fill",
+      "screen": "order-status",
+      "element": "orderNumber",
+      "value": "$input.orderNumber"
+    },
+    {
+      "op": "click",
+      "screen": "order-status",
+      "element": "lookUp",
+      "edge": "order-status:lookUp"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "orderNumber2",
+      "into": "orderNumber"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "customer",
+      "into": "customer"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "status",
+      "into": "status"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "orderDate",
+      "into": "orderDate",
+      "parse": "date"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "shipDate",
+      "into": "shipDate",
+      "parse": "date"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "shipVia",
+      "into": "shipVia"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "poNumber",
+      "into": "poNumber"
+    },
+    {
+      "op": "read",
+      "screen": "order-status",
+      "element": "total",
+      "into": "total",
+      "parse": "money"
+    },
+    {
+      "op": "readTable",
+      "screen": "order-status",
+      "element": "linesGrid",
+      "into": "lines",
+      "columns": {
+        "sku": "SKU",
+        "description": "Description",
+        "qty": "Qty",
+        "unitPrice": "Unit Price",
+        "extended": "Extended"
+      }
+    }
+  ],
+  "provenance": {
+    "task": "Get the status of a sales order by its order number",
+    "graphExploredAt": "2026-10-26T20:44:01.824Z",
+    "learnedAt": "2026-10-26T21:09:05.764Z",
+    "model": "heuristic"
+  }
+}
