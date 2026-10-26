@@ -60,15 +60,15 @@ Muse Spark isn't called at compile time yet. The learned task already holds ever
 | `ok` | steps ran, error rules quiet, post-condition and output schema passed | no |
 | `app_error` | the app refused (alert text, or no matching row) | never |
 | `rejected` / `approval_timeout` | nobody approved the write; the browser leaves the form unsaved | no |
-| `failed` + `reason: locator_failed` | a target matched nothing with every locator, or the wrong screen loaded; `error.step` and `error.key` name the step | **yes, next stage** |
-| `failed` + `reason: postcondition_failed` | the steps ran but the result didn't prove itself | **yes, next stage** |
+| `failed` + `reason: locator_failed` | a target matched nothing with every locator, or the wrong screen loaded; `error.step` and `error.key` name the step | yes, when a control is named ([healer.md](healer.md)) |
+| `failed` + `reason: postcondition_failed` | the steps ran but the result didn't prove itself | yes, if a control on the screen is gone ([healer.md](healer.md)) |
 | `failed` + `invalid_input` / `app_unreachable` / `failed` | bad input, app down, anything else | no |
 
-The self-heal stage starts from these fields. The `step` events in the run log also record `matchedLocator`, so a step that fell back to a lower-ranked locator shows up before anything breaks. Against Contoso, Move drift passes with no heal, and Rename fails with `locator_failed` on `customerId` (New Order) and `orderNumber` (Order Status) (see [test/contoso.test.ts](../test/contoso.test.ts)).
+The healer starts from these fields ([healer.md](healer.md)). The `step` events in the run log also record `matchedLocator`, so a step that fell back to a lower-ranked locator shows up before anything breaks. Against Contoso, Move drift passes with no heal, and Rename fails with `locator_failed` on `customerId` (New Order) and `orderNumber` (Order Status) until the healer fixes them (see [test/contoso.test.ts](../test/contoso.test.ts)).
 
 ## Approval gate and console
 
-[src/approval/gate.ts](../src/approval/gate.ts), [src/console/console.ts](../src/console/console.ts). Before the commit click, the runner takes a full-page screenshot of the filled form and opens a request. The console at `http://127.0.0.1:5180` shows each pending request with its input and screenshot, plus Approve and Reject buttons, the tool list and the run log. A request is flagged "changed since last approval" when the tool's current version isn't the one last approved, which is what a heal will produce.
+[src/approval/gate.ts](../src/approval/gate.ts), [src/console/console.ts](../src/console/console.ts). Before the commit click, the runner checks that the commit button can be found, then takes a full-page screenshot of the filled form and opens a request. The console at `http://127.0.0.1:5180` shows each pending request with its input and screenshot, plus Approve and Reject buttons, the tool list and the run log. A request is flagged "changed since last approval" when the tool's current version isn't the one last approved, which is what a heal will produce.
 
 Only the console can decide, and the MCP server has no tool for it. The console listens on 127.0.0.1 only. Decisions need an `X-LegacyLink` header, which a page on another site can't send without a CORS preflight that this server never answers. Requests with another `Host` are refused, which blocks DNS rebinding.
 

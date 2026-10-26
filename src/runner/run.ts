@@ -15,6 +15,7 @@ import type { Parse } from '../formats/task.js';
 import type { Check, Expr, Step, Target, ToolSpec } from '../formats/tool.js';
 import { ajv, formatErrors } from '../formats/validate.js';
 import type { Approver } from '../approval/gate.js';
+import type { Healer, HealResult } from '../healer/heal.js';
 import type { FailureReason, Outcome, RunLog } from '../runlog/runlog.js';
 import { resolve as resolveLocators, toPlaywright, type Resolved } from './locate.js';
 
@@ -32,6 +33,8 @@ export interface RunResult {
   postcondition: 'passed' | 'failed' | 'skipped';
   // Targets the verify run found for extracts that had no locators, by step index.
   discovered?: Record<number, Target>;
+  // Set when this result comes from the retry after a heal.
+  healed?: HealResult;
   ms: number;
 }
 
@@ -42,6 +45,9 @@ export interface RunOptions {
   caller?: string;
   // readBack checks call other tools through this.
   tools?: (name: string) => ToolSpec | undefined;
+  // Repairs a spec after drift. Without one, a locator failure just fails.
+  healer?: Healer;
+  healNote?: string[]; // shown with the approval request of a healed write
 }
 
 // Ends a run early. reason says whether a heal could help: locator_failed and
@@ -224,9 +230,30 @@ export class Session {
 
   // Runs are serialized: each waits for the one before it.
   run(spec: ToolSpec, input: Record<string, unknown>, opts: RunOptions = {}): Promise<RunResult> {
-    const next = this.queue.then(() => this.execute(spec, input, opts));
+    const next = this.queue.then(() => this.attempt(spec, input, opts));
     this.queue = next.catch(() => {});
     return next;
+  }
+
+  // One run, and at most one heal: if the run failed on drift, the healer
+  // re-locates the broken controls on the page as it is now, and the call runs
+  // again with the patched spec. A write's retry goes through the approval gate
+  // like any other run, flagged as changed.
+  private async attempt(spec: ToolSpec, input: Record<string, unknown>, opts: RunOptions): Promise<RunResult> {
+    if (opts.healer) spec = opts.healer.latest(spec);
+    const first = await this.execute(spec, input, opts);
+    const reason = first.error?.reason;
+    if (!opts.healer || !this.page || first.outcome !== 'failed' || (reason !== 'locator_failed' && reason !== 'postcondition_failed')) return first;
+    const plan = await opts.healer.plan(this.page, spec, first);
+    if (!plan) return first;
+    const retry = await this.execute(plan.spec, input, {
+      ...opts,
+      caller: `heal:${first.runId}`,
+      healedSinceLastApproval: spec.access === 'write' ? true : opts.healedSinceLastApproval,
+      healNote: plan.note,
+    });
+    retry.healed = await opts.healer.settle(plan, first, retry);
+    return retry;
   }
 
   private async execute(spec: ToolSpec, input: Record<string, unknown>, opts: RunOptions): Promise<RunResult> {
@@ -282,6 +309,8 @@ export class Session {
         stepIndex = i;
         if (step.op === 'click' && step.commit) {
           await this.checkErrors(spec, page, i);
+          // Never ask a person to approve a form that can't be submitted.
+          await this.find(page, step.target, i);
           const decision = await this.approval(spec, input, runId, page, opts);
           if (decision !== 'approved') {
             await page.goto(this.abs('/'), { waitUntil: 'load' }).catch(() => {});
@@ -331,7 +360,7 @@ export class Session {
     const screenshot = await this.screenshot(page, runId, 'approval');
     const healed = opts.healedSinceLastApproval ?? false;
     const log = this.opts.runLog;
-    const { id, decided } = opts.approve!({ runId, tool: spec.name, version: spec.version, input, screenshot, healedSinceLastApproval: healed });
+    const { id, decided } = opts.approve!({ runId, tool: spec.name, version: spec.version, input, screenshot, healedSinceLastApproval: healed, ...(opts.healNote && { heal: opts.healNote }) });
     await log.append({ type: 'approval_requested', runId, at: new Date().toISOString(), approvalId: id, screenshot, healedSinceLastApproval: healed });
     const { decision, by } = await decided;
     await log.append({ type: 'approval_decided', runId, at: new Date().toISOString(), approvalId: id, decision, ...(by && { by }) });
@@ -530,7 +559,7 @@ export class Session {
         const input: Record<string, unknown> = {};
         for (const [k, e] of Object.entries(c.input)) input[k] = evalExpr(e, vars);
         // Same page and session, inside this run's turn: no queueing.
-        const back = await this.execute(tool, input, { caller: `readBack:${runId}`, tools: opts.tools });
+        const back = await this.attempt(tool, input, { caller: `readBack:${runId}`, tools: opts.tools, healer: opts.healer });
         if (back.outcome !== 'ok') return `${c.tool}(${JSON.stringify(input)}) ${back.outcome}: ${back.error?.message ?? ''}`;
         for (const [path, exp] of Object.entries(c.expect)) {
           const want = evalExpr('equals' in exp ? exp.equals : exp.prefix, vars);

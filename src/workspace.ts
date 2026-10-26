@@ -5,6 +5,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Browser } from 'playwright';
 import type { AppConfig } from './compiler/compile.js';
+import { Healer } from './healer/heal.js';
+import { createModel, type ModelMode } from './model/client.js';
+import type { HealerModel } from './model/types.js';
 import { Registry } from './registry/registry.js';
 import { Session } from './runner/run.js';
 import { RunLog } from './runlog/runlog.js';
@@ -20,6 +23,10 @@ export class Workspace {
     this.artifactsDir = join(dir, 'artifacts');
   }
 
+  get graphFile(): string {
+    return join(this.dir, 'graph.json');
+  }
+
   get configFile(): string {
     return join(this.dir, 'config.json');
   }
@@ -33,6 +40,13 @@ export class Workspace {
   async saveConfig(config: AppConfig): Promise<void> {
     await mkdir(this.dir, { recursive: true });
     await writeFile(this.configFile, JSON.stringify(config, null, 2) + '\n');
+  }
+
+  // Muse Spark when MODEL_API_KEY is set (or LEGACYLINK_MODEL says so), else the rule-based stand-in.
+  healer(opts: { model?: HealerModel; mode?: ModelMode; env?: NodeJS.ProcessEnv; log?: (line: string) => void } = {}): Healer {
+    const model = opts.model ?? createModel({ mode: opts.mode, env: opts.env, cacheDir: join(this.dir, 'model-cache'), runLog: this.runLog });
+    const max = Number((opts.env ?? process.env).LEGACYLINK_MAX_HEALS_PER_HOUR) || undefined;
+    return new Healer({ registry: this.registry, runLog: this.runLog, model, graphFile: this.graphFile, artifactsDir: this.artifactsDir, log: opts.log, maxPerHour: max });
   }
 
   // The password comes from the environment variable the config names, never from a file.

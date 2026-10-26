@@ -413,13 +413,15 @@ A matched error rule (`app_error`), invalid input, or a timeout while the app is
 5. **Verify.** For a read tool, rerun the original call with the patched spec; the post-condition must pass. For a write tool, see below.
 6. **Commit the heal.** Save as `version + 1` with `provenance.healedFrom`, update the graph's elements for that screen, send MCP `notifications/tools/list_changed`, log a `heal` event with a before/after diff, and return the original call's result.
 
-Limits: one heal attempt per run, three heals per tool per hour. Past that, the tool is marked `broken` in the registry, calls fail fast with a clear error, and the console shows it.
+Limits: one heal attempt per run, five heals per tool per hour. Past that, the tool is marked `broken` in the registry, calls fail fast with a clear error, and the console shows it.
 
 ### Healing a write without writing twice
 
 If a write fails before its commit step, nothing was saved: heal, then continue from the commit step through the approval gate as usual.
 
 If it fails after the commit step (for example, the success message moved), the order may already exist. Before any retry the healer runs a duplicate check: a read-back that looks for the order by its distinguishing input (PO number, or customer plus the run's timestamp). If it exists, the heal only fixes the post-condition targets and the run completes without a second commit. If the duplicate check can't decide, the run fails and asks a person.
+
+As built ([healer.md](healer.md)), the duplicate check isn't there yet: a write that fails at or after its commit step is never healed or retried, and the heal is logged as `failed` for a person to check.
 
 ## Approval gate for writes
 
