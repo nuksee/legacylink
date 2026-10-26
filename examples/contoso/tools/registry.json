@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "tools": {
+    "get_customer_details": {
+      "version": 1,
+      "status": "ok",
+      "access": "read"
+    },
+    "get_order_status": {
+      "version": 1,
+      "status": "ok",
+      "access": "read"
+    },
+    "create_sales_order": {
+      "version": 1,
+      "status": "ok",
+      "access": "write",
+      "lastApprovedVersion": 1
+    }
+  }
+}

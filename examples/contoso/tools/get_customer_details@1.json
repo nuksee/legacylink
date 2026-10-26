@@ -1,0 +1,432 @@
+{
+  "formatVersion": 1,
+  "name": "get_customer_details",
+  "version": 1,
+  "description": "Read the Customer Details screen of Contoso Order Entry for one Customer #. Read-only.",
+  "access": "read",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "customerId"
+    ],
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 5,
+        "description": "Customer #"
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "customerId"
+    ],
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "description": "Customer #"
+      },
+      "name": {
+        "type": "string",
+        "description": "Name"
+      },
+      "contact": {
+        "type": "string",
+        "description": "Contact"
+      },
+      "phone": {
+        "type": "string",
+        "description": "Phone"
+      },
+      "cityState": {
+        "type": "string",
+        "description": "City / State"
+      },
+      "creditLimit": {
+        "type": "number",
+        "description": "Credit Limit"
+      },
+      "balance": {
+        "type": "number",
+        "description": "Balance"
+      },
+      "available": {
+        "type": "number",
+        "description": "Available Credit"
+      },
+      "orders": {
+        "type": "array",
+        "description": "rows of the Order #, Date, Status, Total table",
+        "items": {
+          "type": "object",
+          "properties": {
+            "orderNumber": {
+              "type": "string",
+              "description": "Order #"
+            },
+            "date": {
+              "type": "string",
+              "description": "Date"
+            },
+            "status": {
+              "type": "string",
+              "description": "Status"
+            },
+            "total": {
+              "type": "string",
+              "description": "Total"
+            }
+          }
+        }
+      }
+    }
+  },
+  "screens": {
+    "customer-inquiry": {
+      "url": "/Customers/Search.aspx",
+      "title": "Contoso Order Entry - Customer Inquiry",
+      "heading": "Customer Inquiry"
+    },
+    "customer-details": {
+      "url": "/Customers/Details.aspx",
+      "title": "Contoso Order Entry - Customer Details",
+      "heading": "Customer Details"
+    }
+  },
+  "steps": [
+    {
+      "op": "ensureLogin"
+    },
+    {
+      "op": "goto",
+      "screen": "customer-inquiry",
+      "url": "/Customers/Search.aspx"
+    },
+    {
+      "op": "fill",
+      "target": {
+        "key": "searchId",
+        "intent": "the value for \"Customer #\"",
+        "locators": [
+          {
+            "by": "role",
+            "role": "textbox",
+            "name": "Customer #:"
+          },
+          {
+            "by": "label",
+            "text": "Customer #:"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_txtSearchId"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$txtSearchId"
+          }
+        ]
+      },
+      "value": "$input.customerId"
+    },
+    {
+      "op": "click",
+      "target": {
+        "key": "search",
+        "intent": "the \"Search\" button",
+        "locators": [
+          {
+            "by": "role",
+            "role": "button",
+            "name": "Search"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_btnSearch"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$btnSearch"
+          },
+          {
+            "by": "text",
+            "text": "Search",
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "op": "waitForScreen",
+      "screen": "customer-inquiry"
+    },
+    {
+      "op": "clickRow",
+      "grid": {
+        "key": "customersGrid",
+        "intent": "table with columns Customer #, Name, City, State, Phone",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_gvCustomers"
+          }
+        ]
+      },
+      "match": {
+        "column": "Customer #",
+        "value": "$input.customerId"
+      },
+      "link": {
+        "key": "customersSelectLink",
+        "intent": "opens the selected row from the \"Select\" column",
+        "locators": [
+          {
+            "by": "role",
+            "role": "link",
+            "name": "Select"
+          },
+          {
+            "by": "text",
+            "text": "Select",
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "op": "waitForScreen",
+      "screen": "customer-details"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "customerId",
+        "intent": "shows the Customer #",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblCustomerId"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Customer #\") + td span"
+          }
+        ]
+      },
+      "into": "customerId"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "name",
+        "intent": "shows the Name",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblName"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Name\") + td span"
+          }
+        ]
+      },
+      "into": "name"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "contact",
+        "intent": "shows the Contact",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblContact"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Contact\") + td span"
+          }
+        ]
+      },
+      "into": "contact"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "phone",
+        "intent": "shows the Phone",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblPhone"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Phone\") + td span"
+          }
+        ]
+      },
+      "into": "phone"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "cityState",
+        "intent": "shows the City / State",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblCityState"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"City / State\") + td span"
+          }
+        ]
+      },
+      "into": "cityState"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "creditLimit",
+        "intent": "shows the Credit Limit",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblCreditLimit"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Credit Limit\") + td span"
+          }
+        ]
+      },
+      "into": "creditLimit",
+      "parse": "money"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "balance",
+        "intent": "shows the Balance",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblBalance"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Balance\") + td span"
+          }
+        ]
+      },
+      "into": "balance",
+      "parse": "money"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "available",
+        "intent": "shows the Available Credit",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblAvailable"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Available Credit\") + td span"
+          }
+        ]
+      },
+      "into": "available",
+      "parse": "money"
+    },
+    {
+      "op": "extractTable",
+      "target": {
+        "key": "ordersGrid",
+        "intent": "table with columns Order #, Date, Status, Total",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_gvOrders"
+          }
+        ]
+      },
+      "into": "orders",
+      "columns": {
+        "orderNumber": "Order #",
+        "date": "Date",
+        "status": "Status",
+        "total": "Total"
+      }
+    }
+  ],
+  "postcondition": {
+    "checks": [
+      {
+        "check": "onScreen",
+        "screen": "customer-details"
+      },
+      {
+        "check": "outputMatches",
+        "path": "customerId",
+        "equals": "$input.customerId"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "code": "app_error",
+      "message": "$text",
+      "when": {
+        "target": {
+          "key": "alert",
+          "intent": "the app's error or validation message",
+          "locators": [
+            {
+              "by": "css",
+              "selector": "[role=\"alert\"]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "task": "Look up a customer's details, credit and orders by customer number",
+    "graphExploredAt": "2026-10-26T20:44:01.824Z",
+    "learnedAt": "2026-10-26T21:09:04.687Z",
+    "compiledAt": "2026-10-26T21:50:46.910Z",
+    "model": "heuristic"
+  },
+  "example": {
+    "input": {
+      "customerId": "C1003"
+    },
+    "output": {
+      "customerId": "C1003",
+      "name": "Adventure Works",
+      "contact": "Thomas Hardy",
+      "phone": "(503) 555-0178",
+      "cityState": "Portland, OR",
+      "creditLimit": 7500,
+      "balance": 0,
+      "available": 7500,
+      "orders": [
+        {
+          "orderNumber": "SO-10042",
+          "date": "2026-10-06",
+          "status": "Backordered",
+          "total": "$720.00"
+        }
+      ]
+    }
+  }
+}

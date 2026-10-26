@@ -1,7 +1,8 @@
 // A tiny WebForms-style app for the explorer tests, so CI doesn't need the
 // sample app's private repo. It copies the patterns that matter: a login, a
 // menu, a search whose grid rows post back, a details page, and a form whose
-// Save and Delete must never be pressed. It counts those presses.
+// Save and Delete must never be pressed. It counts those presses. Save works
+// (the runner tests press it): it shows the new invoice number or an alert.
 
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -14,6 +15,7 @@ const CUSTOMERS = [
 export interface FixtureApp {
   url: string; // base URL, ending in the base path
   commits: string[]; // every commit-like request the app received
+  invoices: { number: string; customer: string; terms: string }[]; // saved by the runner tests
   close(): Promise<void>;
 }
 
@@ -21,6 +23,7 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 export async function startFixture(basePath = ''): Promise<FixtureApp> {
   const commits: string[] = [];
+  const invoices: FixtureApp['invoices'] = [];
   const sessions = new Set<string>();
   const href = (p: string) => basePath + p;
 
@@ -87,7 +90,7 @@ ${body}
           const q = (body.get('txtName') ?? '').toLowerCase();
           const rows = CUSTOMERS.filter((c) => c.name.toLowerCase().includes(q));
           grid = `<table id="gvResults"><tr><th>&nbsp;</th><th>Customer ID</th><th>Name</th></tr>${rows
-            .map((c, i) => `<tr><td><a href="javascript:__doPostBack('gvResults','Select$${i}')">Select</a></td><td>${c.id}</td><td>${c.name}</td></tr>`)
+            .map((c) => `<tr><td><a href="javascript:__doPostBack('gvResults','Select$${CUSTOMERS.indexOf(c)}')">Select</a></td><td>${c.id}</td><td>${c.name}</td></tr>`)
             .join('')}</table>`;
         }
         return send(
@@ -112,12 +115,20 @@ ${body}
         );
       }
       if (path === '/Invoice.aspx') {
-        if (req.method === 'POST' && body.has('btnSave')) commits.push('save');
+        let result = '';
+        if (req.method === 'POST' && body.has('btnSave')) {
+          commits.push('save');
+          const cust = CUSTOMERS.find((c) => c.id === body.get('txtCust')?.trim());
+          if (cust) {
+            invoices.push({ number: `INV-${1001 + invoices.length}`, customer: cust.id, terms: body.get('ddlTerms') ?? '30' });
+            result = `<span id="lblMsg" role="status">Invoice <b id="lblInvoiceNo">${invoices.at(-1)!.number}</b> saved for ${cust.id}.</span>`;
+          } else result = `<div id="vsErrors" role="alert">Customer ${esc(body.get('txtCust') ?? '')} was not found.</div>`;
+        }
         if (req.method === 'POST' && body.has('btnCancel')) return redirect('/Home.aspx');
         return send(
           page(
             'New Invoice',
-            `<fieldset><legend>Invoice</legend>
+            `${result}<fieldset><legend>Invoice</legend>
              <label for="txtCust">Customer ID:</label> <input id="txtCust" name="txtCust" type="text" /> <span id="rfvCust" class="validator" style="visibility:hidden">*</span>
              <label for="ddlTerms">Terms:</label> <select id="ddlTerms" name="ddlTerms"><option value="30">Net 30</option><option value="60">Net 60</option></select>
              </fieldset>
@@ -135,6 +146,7 @@ ${body}
   return {
     url: `http://127.0.0.1:${port}${basePath}/`,
     commits,
+    invoices,
     close: () => new Promise((r) => server.close(() => r())),
   };
 }

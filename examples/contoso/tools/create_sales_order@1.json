@@ -1,0 +1,370 @@
+{
+  "formatVersion": 1,
+  "name": "create_sales_order",
+  "version": 1,
+  "description": "Key a new sales order into Contoso Order Entry. A person must approve it before it is saved.",
+  "access": "write",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "customerId",
+      "shipTo",
+      "lines"
+    ],
+    "properties": {
+      "customerId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 5,
+        "description": "Customer #"
+      },
+      "shipTo": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Ship To"
+      },
+      "poNumber": {
+        "type": "string",
+        "maxLength": 20,
+        "description": "PO Number"
+      },
+      "shipVia": {
+        "enum": [
+          "Ground",
+          "2nd Day Air",
+          "Next Day Air",
+          "Will Call"
+        ],
+        "description": "Ship Via"
+      },
+      "lines": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 3,
+        "description": "rows of the line grid, up to 3",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "product",
+            "qty"
+          ],
+          "properties": {
+            "product": {
+              "enum": [
+                "P-100",
+                "P-110",
+                "P-200",
+                "P-300",
+                "P-400"
+              ],
+              "description": "Product"
+            },
+            "qty": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 999,
+              "description": "Qty"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "orderNumber"
+    ],
+    "properties": {
+      "orderNumber": {
+        "type": "string",
+        "minLength": 1,
+        "description": "number of the sales order just saved"
+      }
+    }
+  },
+  "screens": {
+    "new-sales-order": {
+      "url": "/Orders/New.aspx",
+      "title": "Contoso Order Entry - New Sales Order",
+      "heading": "New Sales Order"
+    }
+  },
+  "steps": [
+    {
+      "op": "ensureLogin"
+    },
+    {
+      "op": "goto",
+      "screen": "new-sales-order",
+      "url": "/Orders/New.aspx"
+    },
+    {
+      "op": "fill",
+      "target": {
+        "key": "customerId",
+        "intent": "the value for \"Customer #\"",
+        "locators": [
+          {
+            "by": "role",
+            "role": "textbox",
+            "name": "Customer #:"
+          },
+          {
+            "by": "label",
+            "text": "Customer #:"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_txtCustomerId"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$txtCustomerId"
+          }
+        ]
+      },
+      "value": "$input.customerId"
+    },
+    {
+      "op": "fill",
+      "target": {
+        "key": "shipTo",
+        "intent": "the value for \"Ship To\"",
+        "locators": [
+          {
+            "by": "role",
+            "role": "textbox",
+            "name": "Ship To:"
+          },
+          {
+            "by": "label",
+            "text": "Ship To:"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_txtShipTo"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$txtShipTo"
+          }
+        ]
+      },
+      "value": "$input.shipTo"
+    },
+    {
+      "op": "fill",
+      "target": {
+        "key": "poNumber",
+        "intent": "the value for \"PO Number\"",
+        "locators": [
+          {
+            "by": "role",
+            "role": "textbox",
+            "name": "PO Number:"
+          },
+          {
+            "by": "label",
+            "text": "PO Number:"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_txtPoNumber"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$txtPoNumber"
+          }
+        ]
+      },
+      "value": "$input.poNumber"
+    },
+    {
+      "op": "select",
+      "target": {
+        "key": "shipVia",
+        "intent": "a choice for \"Ship Via\" (Ground, 2nd Day Air, Next Day Air, ...)",
+        "locators": [
+          {
+            "by": "role",
+            "role": "combobox",
+            "name": "Ship Via:"
+          },
+          {
+            "by": "label",
+            "text": "Ship Via:"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_ddlShipVia"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$ddlShipVia"
+          }
+        ]
+      },
+      "value": "$input.shipVia"
+    },
+    {
+      "op": "forEach",
+      "items": "$input.lines",
+      "steps": [
+        {
+          "op": "select",
+          "target": {
+            "key": "product$line",
+            "intent": "a choice for \"Product (row $line)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+            "locators": [
+              {
+                "by": "id",
+                "id": "ctl00_MainContent_ddlProduct$line"
+              },
+              {
+                "by": "name",
+                "name": "ctl00$MainContent$ddlProduct$line"
+              }
+            ]
+          },
+          "value": "$item.product"
+        },
+        {
+          "op": "fill",
+          "target": {
+            "key": "qty$line",
+            "intent": "the value for \"Qty (row $line)\"",
+            "locators": [
+              {
+                "by": "id",
+                "id": "ctl00_MainContent_txtQty$line"
+              },
+              {
+                "by": "name",
+                "name": "ctl00$MainContent$txtQty$line"
+              }
+            ]
+          },
+          "value": "$item.qty"
+        }
+      ]
+    },
+    {
+      "op": "click",
+      "target": {
+        "key": "saveOrder",
+        "intent": "the \"Save Order\" button",
+        "locators": [
+          {
+            "by": "role",
+            "role": "button",
+            "name": "Save Order"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_btnSave"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$btnSave"
+          },
+          {
+            "by": "text",
+            "text": "Save Order",
+            "exact": true
+          }
+        ]
+      },
+      "commit": true
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "orderNumber",
+        "intent": "the number of the sales order just saved",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblOrderNumber"
+          }
+        ]
+      },
+      "into": "orderNumber"
+    }
+  ],
+  "postcondition": {
+    "checks": [
+      {
+        "check": "readBack",
+        "tool": "get_order_status",
+        "input": {
+          "orderNumber": "$output.orderNumber"
+        },
+        "expect": {
+          "customer": {
+            "prefix": "$input.customerId"
+          },
+          "poNumber": {
+            "equals": "$input.poNumber"
+          },
+          "shipVia": {
+            "equals": "$input.shipVia"
+          }
+        }
+      },
+      {
+        "check": "outputMatches",
+        "path": "orderNumber",
+        "pattern": "\\S"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "code": "app_error",
+      "message": "$text",
+      "when": {
+        "target": {
+          "key": "alert",
+          "intent": "the app's error or validation message",
+          "locators": [
+            {
+              "by": "css",
+              "selector": "[role=\"alert\"]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "task": "Create a sales order for a customer with up to three product lines",
+    "graphExploredAt": "2026-10-26T20:44:01.824Z",
+    "learnedAt": "2026-10-26T21:09:06.894Z",
+    "compiledAt": "2026-10-26T21:50:47.764Z",
+    "model": "heuristic"
+  },
+  "example": {
+    "input": {
+      "customerId": "C1003",
+      "shipTo": "Adventure Works\n22 Harbor Way\nPortland, OR 97209",
+      "poNumber": "PO-7731",
+      "shipVia": "2nd Day Air",
+      "lines": [
+        {
+          "product": "P-200",
+          "qty": 5
+        },
+        {
+          "product": "P-100",
+          "qty": 2
+        }
+      ]
+    },
+    "output": {
+      "orderNumber": "SO-10045"
+    }
+  }
+}

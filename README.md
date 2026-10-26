@@ -19,11 +19,13 @@ Enterprises still run legacy apps with no API (WinForms, WebForms, Citrix-publis
 
 ## Status
 
-Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)) and the learner ([docs/learner.md](docs/learner.md)).
+Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)), the learner ([docs/learner.md](docs/learner.md)), and the compiler, runner, MCP server and approval console ([docs/compiler.md](docs/compiler.md)). Next: self-heal.
 
 ```sh
 npm install
 LEGACYLINK_PASSWORD=demo npm run legacylink -- explore --url http://localhost:5080 --user demo
 npm run legacylink -- learn "Get the status of a sales order by its order number"
+npm run legacylink -- compile --examples examples/contoso/examples.json --user demo
+npm run legacylink -- serve      # MCP over stdio; approve writes at http://127.0.0.1:5180
 npm test
 ```

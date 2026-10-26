@@ -1,0 +1,391 @@
+{
+  "formatVersion": 1,
+  "name": "get_order_status",
+  "version": 1,
+  "description": "Read the Order Status screen of Contoso Order Entry for one Order #. Read-only.",
+  "access": "read",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "orderNumber"
+    ],
+    "properties": {
+      "orderNumber": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8,
+        "description": "Order #"
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "orderNumber"
+    ],
+    "properties": {
+      "orderNumber": {
+        "type": "string",
+        "description": "Order #"
+      },
+      "customer": {
+        "type": "string",
+        "description": "Customer"
+      },
+      "status": {
+        "type": "string",
+        "description": "Status"
+      },
+      "orderDate": {
+        "type": "string",
+        "description": "Order Date"
+      },
+      "shipDate": {
+        "type": "string",
+        "description": "Ship Date"
+      },
+      "shipVia": {
+        "type": "string",
+        "description": "Ship Via"
+      },
+      "poNumber": {
+        "type": "string",
+        "description": "PO Number"
+      },
+      "total": {
+        "type": "number",
+        "description": "Order Total"
+      },
+      "lines": {
+        "type": "array",
+        "description": "rows of the SKU, Description, Qty, Unit Price, Extended table",
+        "items": {
+          "type": "object",
+          "properties": {
+            "sku": {
+              "type": "string",
+              "description": "SKU"
+            },
+            "description": {
+              "type": "string",
+              "description": "Description"
+            },
+            "qty": {
+              "type": "string",
+              "description": "Qty"
+            },
+            "unitPrice": {
+              "type": "string",
+              "description": "Unit Price"
+            },
+            "extended": {
+              "type": "string",
+              "description": "Extended"
+            }
+          }
+        }
+      }
+    }
+  },
+  "screens": {
+    "order-status": {
+      "url": "/Orders/Status.aspx",
+      "title": "Contoso Order Entry - Order Status",
+      "heading": "Order Status"
+    }
+  },
+  "steps": [
+    {
+      "op": "ensureLogin"
+    },
+    {
+      "op": "goto",
+      "screen": "order-status",
+      "url": "/Orders/Status.aspx"
+    },
+    {
+      "op": "fill",
+      "target": {
+        "key": "orderNumber",
+        "intent": "the value for \"Order #\"",
+        "locators": [
+          {
+            "by": "role",
+            "role": "textbox",
+            "name": "Order #:"
+          },
+          {
+            "by": "label",
+            "text": "Order #:"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_txtOrderNumber"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$txtOrderNumber"
+          }
+        ]
+      },
+      "value": "$input.orderNumber"
+    },
+    {
+      "op": "click",
+      "target": {
+        "key": "lookUp",
+        "intent": "the \"Look Up\" button",
+        "locators": [
+          {
+            "by": "role",
+            "role": "button",
+            "name": "Look Up"
+          },
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_btnLookup"
+          },
+          {
+            "by": "name",
+            "name": "ctl00$MainContent$btnLookup"
+          },
+          {
+            "by": "text",
+            "text": "Look Up",
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "op": "waitForScreen",
+      "screen": "order-status"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "orderNumber2",
+        "intent": "shows the Order #",
+        "locators": [
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Order #\") + td span"
+          }
+        ]
+      },
+      "into": "orderNumber"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "customer",
+        "intent": "shows the Customer",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblCustomer"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Customer\") + td span"
+          }
+        ]
+      },
+      "into": "customer"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "status",
+        "intent": "shows the Status",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblStatus"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Status\") + td span"
+          }
+        ]
+      },
+      "into": "status"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "orderDate",
+        "intent": "shows the Order Date",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblOrderDate"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Order Date\") + td span"
+          }
+        ]
+      },
+      "into": "orderDate",
+      "parse": "date"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "shipDate",
+        "intent": "shows the Ship Date",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblShipDate"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Ship Date\") + td span"
+          }
+        ]
+      },
+      "into": "shipDate",
+      "parse": "date"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "shipVia",
+        "intent": "shows the Ship Via",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblShipVia"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Ship Via\") + td span"
+          }
+        ]
+      },
+      "into": "shipVia"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "poNumber",
+        "intent": "shows the PO Number",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblPoNumber"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"PO Number\") + td span"
+          }
+        ]
+      },
+      "into": "poNumber"
+    },
+    {
+      "op": "extract",
+      "target": {
+        "key": "total",
+        "intent": "shows the Order Total",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_lblTotal"
+          },
+          {
+            "by": "css",
+            "selector": "td:text-is(\"Order Total\") + td span"
+          }
+        ]
+      },
+      "into": "total",
+      "parse": "money"
+    },
+    {
+      "op": "extractTable",
+      "target": {
+        "key": "linesGrid",
+        "intent": "table with columns SKU, Description, Qty, Unit Price, Extended",
+        "locators": [
+          {
+            "by": "id",
+            "id": "ctl00_MainContent_gvLines"
+          }
+        ]
+      },
+      "into": "lines",
+      "columns": {
+        "sku": "SKU",
+        "description": "Description",
+        "qty": "Qty",
+        "unitPrice": "Unit Price",
+        "extended": "Extended"
+      }
+    }
+  ],
+  "postcondition": {
+    "checks": [
+      {
+        "check": "onScreen",
+        "screen": "order-status"
+      },
+      {
+        "check": "outputMatches",
+        "path": "orderNumber",
+        "equals": "$input.orderNumber"
+      }
+    ]
+  },
+  "errors": [
+    {
+      "code": "app_error",
+      "message": "$text",
+      "when": {
+        "target": {
+          "key": "alert",
+          "intent": "the app's error or validation message",
+          "locators": [
+            {
+              "by": "css",
+              "selector": "[role=\"alert\"]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "task": "Get the status of a sales order by its order number",
+    "graphExploredAt": "2026-10-26T20:44:01.824Z",
+    "learnedAt": "2026-10-26T21:09:05.764Z",
+    "compiledAt": "2026-10-26T21:50:47.546Z",
+    "model": "heuristic"
+  },
+  "example": {
+    "input": {
+      "orderNumber": "SO-10042"
+    },
+    "output": {
+      "orderNumber": "SO-10042",
+      "customer": "C1003 - Adventure Works",
+      "status": "Backordered",
+      "orderDate": "2026-10-06",
+      "shipVia": "2nd Day Air",
+      "poNumber": "AW-0193",
+      "total": 720,
+      "lines": [
+        {
+          "sku": "P-200",
+          "description": "Gear Assembly",
+          "qty": "40",
+          "unitPrice": "$18.00",
+          "extended": "$720.00"
+        }
+      ]
+    }
+  }
+}

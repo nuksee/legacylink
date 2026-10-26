@@ -1,0 +1,80 @@
+{
+  "formatVersion": 1,
+  "app": {
+    "name": "Contoso Order Entry",
+    "baseUrl": "http://localhost:5080"
+  },
+  "login": {
+    "screen": "log-in",
+    "url": "/Login.aspx",
+    "user": {
+      "key": "userName",
+      "intent": "the value for \"User Name\"",
+      "locators": [
+        {
+          "by": "role",
+          "role": "textbox",
+          "name": "User Name:"
+        },
+        {
+          "by": "label",
+          "text": "User Name:"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_txtUserName"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$txtUserName"
+        }
+      ]
+    },
+    "password": {
+      "key": "password",
+      "intent": "the password to sign in with",
+      "locators": [
+        {
+          "by": "role",
+          "role": "textbox",
+          "name": "Password:"
+        },
+        {
+          "by": "label",
+          "text": "Password:"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_txtPassword"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$txtPassword"
+        }
+      ]
+    },
+    "submit": {
+      "key": "logIn",
+      "intent": "the \"Log In\" button",
+      "locators": [
+        {
+          "by": "role",
+          "role": "button",
+          "name": "Log In"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_btnLogin"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$btnLogin"
+        }
+      ]
+    }
+  },
+  "credentials": {
+    "user": "demo",
+    "passwordEnv": "LEGACYLINK_PASSWORD"
+  }
+}
