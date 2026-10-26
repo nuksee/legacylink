@@ -5,3 +5,4 @@ Planning notes for LegacyLink, gathered before the build window opens on Oct 26,
 - [plan.md](plan.md): the 10-day build plan.
 - [hackathon.md](hackathon.md): what we know about the hackathon rules, deadlines and Meta API access.
 - [architecture.md](architecture.md): how LegacyLink works inside, and the screen graph and tool spec formats every component shares.
+- [explorer.md](explorer.md): running the explorer, model modes, safety rules and the conventions it adds to the screen graph.
