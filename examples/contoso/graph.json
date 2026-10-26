@@ -1,0 +1,1915 @@
+{
+  "formatVersion": 1,
+  "app": {
+    "name": "Contoso Order Entry",
+    "baseUrl": "http://localhost:5080"
+  },
+  "exploredAt": "2026-10-26T20:44:01.824Z",
+  "screens": [
+    {
+      "id": "log-in",
+      "name": "Log In",
+      "purpose": "Sign-in screen for the application.",
+      "urlPattern": "/Login.aspx",
+      "fingerprint": {
+        "title": "Contoso Order Entry - Log In",
+        "heading": "Log In",
+        "landmarks": [
+          "Account Information"
+        ]
+      },
+      "requiresLogin": false,
+      "screenshot": "artifacts/explore/log-in.png",
+      "elements": [
+        {
+          "key": "userName",
+          "kind": "input",
+          "intent": "the value for \"User Name\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "User Name:"
+            },
+            {
+              "by": "label",
+              "text": "User Name:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtUserName"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtUserName"
+            }
+          ],
+          "label": "User Name:"
+        },
+        {
+          "key": "password",
+          "kind": "input",
+          "intent": "the password to sign in with",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "Password:"
+            },
+            {
+              "by": "label",
+              "text": "Password:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtPassword"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtPassword"
+            }
+          ],
+          "label": "Password:"
+        },
+        {
+          "key": "logIn",
+          "kind": "button",
+          "intent": "the \"Log In\" button",
+          "locators": [
+            {
+              "by": "role",
+              "role": "button",
+              "name": "Log In"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_btnLogin"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$btnLogin"
+            }
+          ],
+          "role": "navigate"
+        }
+      ]
+    },
+    {
+      "id": "main-menu",
+      "name": "Main Menu",
+      "purpose": "Menu screen that links to Customer Inquiry, Order Entry, Order Status.",
+      "urlPattern": "/Default.aspx",
+      "fingerprint": {
+        "title": "Contoso Order Entry - Main Menu",
+        "heading": "Main Menu",
+        "landmarks": []
+      },
+      "requiresLogin": true,
+      "screenshot": "artifacts/explore/main-menu.png",
+      "elements": [
+        {
+          "key": "logOutLink",
+          "kind": "link",
+          "intent": "opens \"Log Out\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Log Out"
+            },
+            {
+              "by": "id",
+              "id": "HeadLoginView_HeadLoginStatus"
+            },
+            {
+              "by": "text",
+              "text": "Log Out",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "homeLink",
+          "kind": "link",
+          "intent": "opens \"Home\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Home"
+            },
+            {
+              "by": "text",
+              "text": "Home",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(1) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customersLink",
+          "kind": "link",
+          "intent": "opens \"Customers\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Customers"
+            },
+            {
+              "by": "text",
+              "text": "Customers",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(2) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "newOrderLink",
+          "kind": "link",
+          "intent": "opens \"New Order\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "New Order"
+            },
+            {
+              "by": "text",
+              "text": "New Order",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(3) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderStatusLink",
+          "kind": "link",
+          "intent": "opens \"Order Status\"",
+          "locators": [
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(4) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customerInquiryLink",
+          "kind": "link",
+          "intent": "opens \"Customer Inquiry\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Customer Inquiry"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lnkCustomers"
+            },
+            {
+              "by": "text",
+              "text": "Customer Inquiry",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderEntryLink",
+          "kind": "link",
+          "intent": "opens \"Order Entry\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Order Entry"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lnkNewOrder"
+            },
+            {
+              "by": "text",
+              "text": "Order Entry",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderStatusLink2",
+          "kind": "link",
+          "intent": "opens \"Order Status\"",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lnkStatus"
+            }
+          ],
+          "role": "navigate"
+        }
+      ]
+    },
+    {
+      "id": "customer-inquiry",
+      "name": "Customer Inquiry",
+      "purpose": "Search by Customer # or Name contains and view the matching records.",
+      "urlPattern": "/Customers/Search.aspx",
+      "fingerprint": {
+        "title": "Contoso Order Entry - Customer Inquiry",
+        "heading": "Customer Inquiry",
+        "landmarks": [
+          "Search Criteria",
+          "ctl00_MainContent_gvCustomers"
+        ]
+      },
+      "requiresLogin": true,
+      "screenshot": "artifacts/explore/customer-inquiry.png",
+      "elements": [
+        {
+          "key": "logOutLink",
+          "kind": "link",
+          "intent": "opens \"Log Out\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Log Out"
+            },
+            {
+              "by": "id",
+              "id": "HeadLoginView_HeadLoginStatus"
+            },
+            {
+              "by": "text",
+              "text": "Log Out",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "homeLink",
+          "kind": "link",
+          "intent": "opens \"Home\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Home"
+            },
+            {
+              "by": "text",
+              "text": "Home",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(1) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customersLink",
+          "kind": "link",
+          "intent": "opens \"Customers\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Customers"
+            },
+            {
+              "by": "text",
+              "text": "Customers",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(2) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "newOrderLink",
+          "kind": "link",
+          "intent": "opens \"New Order\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "New Order"
+            },
+            {
+              "by": "text",
+              "text": "New Order",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(3) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderStatusLink",
+          "kind": "link",
+          "intent": "opens \"Order Status\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Order Status"
+            },
+            {
+              "by": "text",
+              "text": "Order Status",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(4) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "searchId",
+          "kind": "input",
+          "intent": "the value for \"Customer #\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "Customer #:"
+            },
+            {
+              "by": "label",
+              "text": "Customer #:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtSearchId"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtSearchId"
+            }
+          ],
+          "label": "Customer #:",
+          "maxLength": 5
+        },
+        {
+          "key": "searchName",
+          "kind": "input",
+          "intent": "the value for \"Name contains\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "Name contains:"
+            },
+            {
+              "by": "label",
+              "text": "Name contains:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtSearchName"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtSearchName"
+            }
+          ],
+          "label": "Name contains:"
+        },
+        {
+          "key": "search",
+          "kind": "button",
+          "intent": "the \"Search\" button",
+          "locators": [
+            {
+              "by": "role",
+              "role": "button",
+              "name": "Search"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_btnSearch"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$btnSearch"
+            },
+            {
+              "by": "text",
+              "text": "Search",
+              "exact": true
+            }
+          ],
+          "role": "search"
+        },
+        {
+          "key": "customersGrid",
+          "kind": "grid",
+          "intent": "table with columns Customer #, Name, City, State, Phone",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_gvCustomers"
+            }
+          ]
+        },
+        {
+          "key": "customersSelectLink",
+          "kind": "gridLink",
+          "intent": "opens the selected row from the \"Select\" column",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Select"
+            },
+            {
+              "by": "text",
+              "text": "Select",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        }
+      ]
+    },
+    {
+      "id": "new-sales-order",
+      "name": "New Sales Order",
+      "purpose": "Form to enter and save a record on the New Sales Order screen.",
+      "urlPattern": "/Orders/New.aspx",
+      "fingerprint": {
+        "title": "Contoso Order Entry - New Sales Order",
+        "heading": "New Sales Order",
+        "landmarks": [
+          "Customer",
+          "Line Items",
+          "ctl00_MainContent_gvLines"
+        ]
+      },
+      "requiresLogin": true,
+      "screenshot": "artifacts/explore/new-sales-order.png",
+      "elements": [
+        {
+          "key": "logOutLink",
+          "kind": "link",
+          "intent": "opens \"Log Out\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Log Out"
+            },
+            {
+              "by": "id",
+              "id": "HeadLoginView_HeadLoginStatus"
+            },
+            {
+              "by": "text",
+              "text": "Log Out",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "homeLink",
+          "kind": "link",
+          "intent": "opens \"Home\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Home"
+            },
+            {
+              "by": "text",
+              "text": "Home",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(1) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customersLink",
+          "kind": "link",
+          "intent": "opens \"Customers\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Customers"
+            },
+            {
+              "by": "text",
+              "text": "Customers",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(2) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "newOrderLink",
+          "kind": "link",
+          "intent": "opens \"New Order\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "New Order"
+            },
+            {
+              "by": "text",
+              "text": "New Order",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(3) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderStatusLink",
+          "kind": "link",
+          "intent": "opens \"Order Status\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Order Status"
+            },
+            {
+              "by": "text",
+              "text": "Order Status",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(4) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customerId",
+          "kind": "input",
+          "intent": "the value for \"Customer #\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "Customer #:"
+            },
+            {
+              "by": "label",
+              "text": "Customer #:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtCustomerId"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtCustomerId"
+            }
+          ],
+          "label": "Customer #:",
+          "required": true,
+          "maxLength": 5
+        },
+        {
+          "key": "shipTo",
+          "kind": "textarea",
+          "intent": "the value for \"Ship To\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "Ship To:"
+            },
+            {
+              "by": "label",
+              "text": "Ship To:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtShipTo"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtShipTo"
+            }
+          ],
+          "label": "Ship To:",
+          "required": true
+        },
+        {
+          "key": "poNumber",
+          "kind": "input",
+          "intent": "the value for \"PO Number\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "PO Number:"
+            },
+            {
+              "by": "label",
+              "text": "PO Number:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtPoNumber"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtPoNumber"
+            }
+          ],
+          "label": "PO Number:",
+          "maxLength": 20
+        },
+        {
+          "key": "shipVia",
+          "kind": "select",
+          "intent": "a choice for \"Ship Via\" (Ground, 2nd Day Air, Next Day Air, ...)",
+          "locators": [
+            {
+              "by": "role",
+              "role": "combobox",
+              "name": "Ship Via:"
+            },
+            {
+              "by": "label",
+              "text": "Ship Via:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_ddlShipVia"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$ddlShipVia"
+            }
+          ],
+          "label": "Ship Via:",
+          "options": [
+            {
+              "value": "Ground",
+              "text": "Ground"
+            },
+            {
+              "value": "2nd Day Air",
+              "text": "2nd Day Air"
+            },
+            {
+              "value": "Next Day Air",
+              "text": "Next Day Air"
+            },
+            {
+              "value": "Will Call",
+              "text": "Will Call"
+            }
+          ]
+        },
+        {
+          "key": "linesGrid",
+          "kind": "grid",
+          "intent": "table with columns Line, Product, Qty",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_gvLines"
+            }
+          ]
+        },
+        {
+          "key": "product1",
+          "kind": "select",
+          "intent": "a choice for \"Product (row 1)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_ddlProduct1"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$ddlProduct1"
+            }
+          ],
+          "label": "Product (row 1)",
+          "options": [
+            {
+              "value": "",
+              "text": "-- Select --"
+            },
+            {
+              "value": "P-100",
+              "text": "P-100 Widget, Standard ($4.50)"
+            },
+            {
+              "value": "P-110",
+              "text": "P-110 Widget, Deluxe ($7.25)"
+            },
+            {
+              "value": "P-200",
+              "text": "P-200 Gear Assembly ($18.00)"
+            },
+            {
+              "value": "P-300",
+              "text": "P-300 Bearing Kit ($12.40)"
+            },
+            {
+              "value": "P-400",
+              "text": "P-400 Hydraulic Hose 6ft ($22.95)"
+            }
+          ]
+        },
+        {
+          "key": "qty1",
+          "kind": "input",
+          "intent": "the value for \"Qty (row 1)\"",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtQty1"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtQty1"
+            }
+          ],
+          "label": "Qty (row 1)",
+          "maxLength": 3
+        },
+        {
+          "key": "product2",
+          "kind": "select",
+          "intent": "a choice for \"Product (row 2)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_ddlProduct2"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$ddlProduct2"
+            }
+          ],
+          "label": "Product (row 2)",
+          "options": [
+            {
+              "value": "",
+              "text": "-- Select --"
+            },
+            {
+              "value": "P-100",
+              "text": "P-100 Widget, Standard ($4.50)"
+            },
+            {
+              "value": "P-110",
+              "text": "P-110 Widget, Deluxe ($7.25)"
+            },
+            {
+              "value": "P-200",
+              "text": "P-200 Gear Assembly ($18.00)"
+            },
+            {
+              "value": "P-300",
+              "text": "P-300 Bearing Kit ($12.40)"
+            },
+            {
+              "value": "P-400",
+              "text": "P-400 Hydraulic Hose 6ft ($22.95)"
+            }
+          ]
+        },
+        {
+          "key": "qty2",
+          "kind": "input",
+          "intent": "the value for \"Qty (row 2)\"",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtQty2"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtQty2"
+            }
+          ],
+          "label": "Qty (row 2)",
+          "maxLength": 3
+        },
+        {
+          "key": "product3",
+          "kind": "select",
+          "intent": "a choice for \"Product (row 3)\" (-- Select --, P-100 Widget, Standard ($4.50), P-110 Widget, Deluxe ($7.25), ...)",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_ddlProduct3"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$ddlProduct3"
+            }
+          ],
+          "label": "Product (row 3)",
+          "options": [
+            {
+              "value": "",
+              "text": "-- Select --"
+            },
+            {
+              "value": "P-100",
+              "text": "P-100 Widget, Standard ($4.50)"
+            },
+            {
+              "value": "P-110",
+              "text": "P-110 Widget, Deluxe ($7.25)"
+            },
+            {
+              "value": "P-200",
+              "text": "P-200 Gear Assembly ($18.00)"
+            },
+            {
+              "value": "P-300",
+              "text": "P-300 Bearing Kit ($12.40)"
+            },
+            {
+              "value": "P-400",
+              "text": "P-400 Hydraulic Hose 6ft ($22.95)"
+            }
+          ]
+        },
+        {
+          "key": "qty3",
+          "kind": "input",
+          "intent": "the value for \"Qty (row 3)\"",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtQty3"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtQty3"
+            }
+          ],
+          "label": "Qty (row 3)",
+          "maxLength": 3
+        },
+        {
+          "key": "cancel",
+          "kind": "button",
+          "intent": "the \"Cancel\" button",
+          "locators": [
+            {
+              "by": "role",
+              "role": "button",
+              "name": "Cancel"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_btnCancel"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$btnCancel"
+            },
+            {
+              "by": "text",
+              "text": "Cancel",
+              "exact": true
+            }
+          ],
+          "role": "cancel"
+        },
+        {
+          "key": "saveOrder",
+          "kind": "button",
+          "intent": "the \"Save Order\" button",
+          "locators": [
+            {
+              "by": "role",
+              "role": "button",
+              "name": "Save Order"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_btnSave"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$btnSave"
+            },
+            {
+              "by": "text",
+              "text": "Save Order",
+              "exact": true
+            }
+          ],
+          "role": "commit"
+        }
+      ]
+    },
+    {
+      "id": "order-status",
+      "name": "Order Status",
+      "purpose": "Search by Order # and view the matching records.",
+      "urlPattern": "/Orders/Status.aspx",
+      "fingerprint": {
+        "title": "Contoso Order Entry - Order Status",
+        "heading": "Order Status",
+        "landmarks": [
+          "Find Order",
+          "ctl00_MainContent_gvLines"
+        ]
+      },
+      "requiresLogin": true,
+      "screenshot": "artifacts/explore/order-status.png",
+      "elements": [
+        {
+          "key": "logOutLink",
+          "kind": "link",
+          "intent": "opens \"Log Out\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Log Out"
+            },
+            {
+              "by": "id",
+              "id": "HeadLoginView_HeadLoginStatus"
+            },
+            {
+              "by": "text",
+              "text": "Log Out",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "homeLink",
+          "kind": "link",
+          "intent": "opens \"Home\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Home"
+            },
+            {
+              "by": "text",
+              "text": "Home",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(1) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customersLink",
+          "kind": "link",
+          "intent": "opens \"Customers\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Customers"
+            },
+            {
+              "by": "text",
+              "text": "Customers",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(2) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "newOrderLink",
+          "kind": "link",
+          "intent": "opens \"New Order\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "New Order"
+            },
+            {
+              "by": "text",
+              "text": "New Order",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(3) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderStatusLink",
+          "kind": "link",
+          "intent": "opens \"Order Status\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Order Status"
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(4) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderNumber",
+          "kind": "input",
+          "intent": "the value for \"Order #\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "textbox",
+              "name": "Order #:"
+            },
+            {
+              "by": "label",
+              "text": "Order #:"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_txtOrderNumber"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$txtOrderNumber"
+            }
+          ],
+          "label": "Order #:",
+          "maxLength": 8
+        },
+        {
+          "key": "lookUp",
+          "kind": "button",
+          "intent": "the \"Look Up\" button",
+          "locators": [
+            {
+              "by": "role",
+              "role": "button",
+              "name": "Look Up"
+            },
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_btnLookup"
+            },
+            {
+              "by": "name",
+              "name": "ctl00$MainContent$btnLookup"
+            },
+            {
+              "by": "text",
+              "text": "Look Up",
+              "exact": true
+            }
+          ],
+          "role": "search"
+        },
+        {
+          "key": "orderNumber2",
+          "kind": "output",
+          "intent": "shows the Order #",
+          "locators": [
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Order #\") + td span"
+            }
+          ],
+          "label": "Order #"
+        },
+        {
+          "key": "customer",
+          "kind": "output",
+          "intent": "shows the Customer",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblCustomer"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Customer\") + td span"
+            }
+          ],
+          "label": "Customer"
+        },
+        {
+          "key": "status",
+          "kind": "output",
+          "intent": "shows the Status",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblStatus"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Status\") + td span"
+            }
+          ],
+          "label": "Status"
+        },
+        {
+          "key": "orderDate",
+          "kind": "output",
+          "intent": "shows the Order Date",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblOrderDate"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Order Date\") + td span"
+            }
+          ],
+          "label": "Order Date"
+        },
+        {
+          "key": "shipDate",
+          "kind": "output",
+          "intent": "shows the Ship Date",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblShipDate"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Ship Date\") + td span"
+            }
+          ],
+          "label": "Ship Date"
+        },
+        {
+          "key": "shipVia",
+          "kind": "output",
+          "intent": "shows the Ship Via",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblShipVia"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Ship Via\") + td span"
+            }
+          ],
+          "label": "Ship Via"
+        },
+        {
+          "key": "poNumber",
+          "kind": "output",
+          "intent": "shows the PO Number",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblPoNumber"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"PO Number\") + td span"
+            }
+          ],
+          "label": "PO Number"
+        },
+        {
+          "key": "total",
+          "kind": "output",
+          "intent": "shows the Order Total",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblTotal"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Order Total\") + td span"
+            }
+          ],
+          "label": "Order Total"
+        },
+        {
+          "key": "linesGrid",
+          "kind": "grid",
+          "intent": "table with columns SKU, Description, Qty, Unit Price, Extended",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_gvLines"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "customer-details",
+      "name": "Customer Details",
+      "purpose": "Shows Customer #, Name, Contact, Phone and more for one record.",
+      "urlPattern": "/Customers/Details.aspx",
+      "fingerprint": {
+        "title": "Contoso Order Entry - Customer Details",
+        "heading": "Customer Details",
+        "landmarks": [
+          "Orders",
+          "ctl00_MainContent_gvOrders"
+        ]
+      },
+      "requiresLogin": true,
+      "screenshot": "artifacts/explore/customer-details.png",
+      "elements": [
+        {
+          "key": "logOutLink",
+          "kind": "link",
+          "intent": "opens \"Log Out\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Log Out"
+            },
+            {
+              "by": "id",
+              "id": "HeadLoginView_HeadLoginStatus"
+            },
+            {
+              "by": "text",
+              "text": "Log Out",
+              "exact": true
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "homeLink",
+          "kind": "link",
+          "intent": "opens \"Home\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Home"
+            },
+            {
+              "by": "text",
+              "text": "Home",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(1) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customersLink",
+          "kind": "link",
+          "intent": "opens \"Customers\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Customers"
+            },
+            {
+              "by": "text",
+              "text": "Customers",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(2) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "newOrderLink",
+          "kind": "link",
+          "intent": "opens \"New Order\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "New Order"
+            },
+            {
+              "by": "text",
+              "text": "New Order",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(3) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "orderStatusLink",
+          "kind": "link",
+          "intent": "opens \"Order Status\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "Order Status"
+            },
+            {
+              "by": "text",
+              "text": "Order Status",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"menu\"] > table > tbody > tr > td:nth-of-type(4) > a"
+            }
+          ],
+          "role": "navigate"
+        },
+        {
+          "key": "customerId",
+          "kind": "output",
+          "intent": "shows the Customer #",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblCustomerId"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Customer #\") + td span"
+            }
+          ],
+          "label": "Customer #"
+        },
+        {
+          "key": "name",
+          "kind": "output",
+          "intent": "shows the Name",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblName"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Name\") + td span"
+            }
+          ],
+          "label": "Name"
+        },
+        {
+          "key": "contact",
+          "kind": "output",
+          "intent": "shows the Contact",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblContact"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Contact\") + td span"
+            }
+          ],
+          "label": "Contact"
+        },
+        {
+          "key": "phone",
+          "kind": "output",
+          "intent": "shows the Phone",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblPhone"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Phone\") + td span"
+            }
+          ],
+          "label": "Phone"
+        },
+        {
+          "key": "cityState",
+          "kind": "output",
+          "intent": "shows the City / State",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblCityState"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"City / State\") + td span"
+            }
+          ],
+          "label": "City / State"
+        },
+        {
+          "key": "creditLimit",
+          "kind": "output",
+          "intent": "shows the Credit Limit",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblCreditLimit"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Credit Limit\") + td span"
+            }
+          ],
+          "label": "Credit Limit"
+        },
+        {
+          "key": "balance",
+          "kind": "output",
+          "intent": "shows the Balance",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblBalance"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Balance\") + td span"
+            }
+          ],
+          "label": "Balance"
+        },
+        {
+          "key": "available",
+          "kind": "output",
+          "intent": "shows the Available Credit",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_lblAvailable"
+            },
+            {
+              "by": "css",
+              "selector": "td:text-is(\"Available Credit\") + td span"
+            }
+          ],
+          "label": "Available Credit"
+        },
+        {
+          "key": "ordersGrid",
+          "kind": "grid",
+          "intent": "table with columns Order #, Date, Status, Total",
+          "locators": [
+            {
+              "by": "id",
+              "id": "ctl00_MainContent_gvOrders"
+            }
+          ]
+        },
+        {
+          "key": "ordersOrderNumberLink",
+          "kind": "gridLink",
+          "intent": "opens the selected row from the \"Order #\" column",
+          "locators": [
+            {
+              "by": "css",
+              "selector": "td:nth-child(1) a"
+            }
+          ],
+          "label": "Order #",
+          "role": "navigate"
+        },
+        {
+          "key": "backToSearchLink",
+          "kind": "link",
+          "intent": "opens \"Back to search\"",
+          "locators": [
+            {
+              "by": "role",
+              "role": "link",
+              "name": "« Back to search"
+            },
+            {
+              "by": "text",
+              "text": "« Back to search",
+              "exact": true
+            },
+            {
+              "by": "css",
+              "selector": "[id=\"main\"] > p > a"
+            }
+          ],
+          "role": "navigate"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "log-in:logIn",
+      "from": "log-in",
+      "to": "main-menu",
+      "via": "logIn",
+      "kind": "postback",
+      "status": "explored",
+      "fields": [
+        "userName",
+        "password"
+      ]
+    },
+    {
+      "id": "main-menu:logOutLink",
+      "from": "main-menu",
+      "to": null,
+      "via": "logOutLink",
+      "kind": "navigate",
+      "status": "unexplored"
+    },
+    {
+      "id": "main-menu:homeLink",
+      "from": "main-menu",
+      "to": "main-menu",
+      "via": "homeLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "main-menu:customersLink",
+      "from": "main-menu",
+      "to": "customer-inquiry",
+      "via": "customersLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "main-menu:newOrderLink",
+      "from": "main-menu",
+      "to": "new-sales-order",
+      "via": "newOrderLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "main-menu:orderStatusLink",
+      "from": "main-menu",
+      "to": "order-status",
+      "via": "orderStatusLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "main-menu:customerInquiryLink",
+      "from": "main-menu",
+      "to": "customer-inquiry",
+      "via": "customerInquiryLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "main-menu:orderEntryLink",
+      "from": "main-menu",
+      "to": "new-sales-order",
+      "via": "orderEntryLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "main-menu:orderStatusLink2",
+      "from": "main-menu",
+      "to": "order-status",
+      "via": "orderStatusLink2",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-inquiry:logOutLink",
+      "from": "customer-inquiry",
+      "to": null,
+      "via": "logOutLink",
+      "kind": "navigate",
+      "status": "unexplored"
+    },
+    {
+      "id": "customer-inquiry:homeLink",
+      "from": "customer-inquiry",
+      "to": "main-menu",
+      "via": "homeLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-inquiry:customersLink",
+      "from": "customer-inquiry",
+      "to": "customer-inquiry",
+      "via": "customersLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-inquiry:newOrderLink",
+      "from": "customer-inquiry",
+      "to": "new-sales-order",
+      "via": "newOrderLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-inquiry:orderStatusLink",
+      "from": "customer-inquiry",
+      "to": "order-status",
+      "via": "orderStatusLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-inquiry:search",
+      "from": "customer-inquiry",
+      "to": "customer-inquiry",
+      "via": "search",
+      "kind": "search",
+      "status": "explored"
+    },
+    {
+      "id": "new-sales-order:logOutLink",
+      "from": "new-sales-order",
+      "to": null,
+      "via": "logOutLink",
+      "kind": "navigate",
+      "status": "unexplored"
+    },
+    {
+      "id": "new-sales-order:homeLink",
+      "from": "new-sales-order",
+      "to": "main-menu",
+      "via": "homeLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "new-sales-order:customersLink",
+      "from": "new-sales-order",
+      "to": "customer-inquiry",
+      "via": "customersLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "new-sales-order:newOrderLink",
+      "from": "new-sales-order",
+      "to": "new-sales-order",
+      "via": "newOrderLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "new-sales-order:orderStatusLink",
+      "from": "new-sales-order",
+      "to": "order-status",
+      "via": "orderStatusLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "new-sales-order:cancel",
+      "from": "new-sales-order",
+      "to": "main-menu",
+      "via": "cancel",
+      "kind": "postback",
+      "status": "explored"
+    },
+    {
+      "id": "new-sales-order:saveOrder",
+      "from": "new-sales-order",
+      "to": null,
+      "via": "saveOrder",
+      "kind": "commit",
+      "status": "unexplored",
+      "fields": [
+        "customerId",
+        "shipTo",
+        "poNumber",
+        "shipVia",
+        "product1",
+        "qty1",
+        "product2",
+        "qty2",
+        "product3",
+        "qty3"
+      ]
+    },
+    {
+      "id": "order-status:logOutLink",
+      "from": "order-status",
+      "to": null,
+      "via": "logOutLink",
+      "kind": "navigate",
+      "status": "unexplored"
+    },
+    {
+      "id": "order-status:homeLink",
+      "from": "order-status",
+      "to": "main-menu",
+      "via": "homeLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "order-status:customersLink",
+      "from": "order-status",
+      "to": "customer-inquiry",
+      "via": "customersLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "order-status:newOrderLink",
+      "from": "order-status",
+      "to": "new-sales-order",
+      "via": "newOrderLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "order-status:orderStatusLink",
+      "from": "order-status",
+      "to": "order-status",
+      "via": "orderStatusLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "order-status:lookUp",
+      "from": "order-status",
+      "to": "order-status",
+      "via": "lookUp",
+      "kind": "search",
+      "status": "explored",
+      "fields": [
+        "orderNumber"
+      ]
+    },
+    {
+      "id": "customer-inquiry:customersSelectLink",
+      "from": "customer-inquiry",
+      "to": "customer-details",
+      "via": "customersSelectLink",
+      "kind": "postback",
+      "status": "explored"
+    },
+    {
+      "id": "customer-details:logOutLink",
+      "from": "customer-details",
+      "to": null,
+      "via": "logOutLink",
+      "kind": "navigate",
+      "status": "unexplored"
+    },
+    {
+      "id": "customer-details:homeLink",
+      "from": "customer-details",
+      "to": "main-menu",
+      "via": "homeLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-details:customersLink",
+      "from": "customer-details",
+      "to": "customer-inquiry",
+      "via": "customersLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-details:newOrderLink",
+      "from": "customer-details",
+      "to": "new-sales-order",
+      "via": "newOrderLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-details:orderStatusLink",
+      "from": "customer-details",
+      "to": "order-status",
+      "via": "orderStatusLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-details:ordersOrderNumberLink",
+      "from": "customer-details",
+      "to": "order-status",
+      "via": "ordersOrderNumberLink",
+      "kind": "navigate",
+      "status": "explored"
+    },
+    {
+      "id": "customer-details:backToSearchLink",
+      "from": "customer-details",
+      "to": "customer-inquiry",
+      "via": "backToSearchLink",
+      "kind": "navigate",
+      "status": "explored"
+    }
+  ]
+}

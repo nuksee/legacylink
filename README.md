@@ -19,4 +19,10 @@ Enterprises still run legacy apps with no API (WinForms, WebForms, Citrix-publis
 
 ## Status
 
-Planning. Code starts Oct 26, 2026, per the hackathon rules.
+Building. Done so far: the screen graph format and the explorer ([docs/explorer.md](docs/explorer.md)).
+
+```sh
+npm install
+LEGACYLINK_PASSWORD=demo npm run legacylink -- explore --url http://localhost:5080 --user demo
+npm test
+```
