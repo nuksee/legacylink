@@ -57,6 +57,19 @@ describe('model client', () => {
     assert.equal(createModel({ cacheDir: dir, env }).mode, 'live');
   });
 
+  it('live without a key sends no Authorization header, for a proxy to add', async () => {
+    answers.push(good);
+    const model = createModel({ cacheDir: dir, env: { LEGACYLINK_MODEL: 'live', MUSE_BASE_URL: 'https://muse.test/v1' } });
+    assert.equal(model.mode, 'live');
+    assert.deepEqual(await model.analyzeScreen(input), good);
+    assert.equal(calls[0]!.auth, null);
+  });
+
+  it('names finish_reason when the answer has no content', async () => {
+    globalThis.fetch = (async () => new Response(JSON.stringify({ choices: [{ finish_reason: 'length', message: { content: null } }] }))) as typeof fetch;
+    await assert.rejects(createModel({ cacheDir: dir, env }).analyzeScreen(input), /no message content \(finish_reason length\)/);
+  });
+
   it('retries once with the validation errors, then records the answer', async () => {
     answers.push({ ...good, elements: good.elements.slice(0, 1) }, good);
     const model = createModel({ cacheDir: join(dir, 'cache'), env, runLog: new RunLog(join(dir, 'runs')) });

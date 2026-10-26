@@ -1,0 +1,69 @@
+{
+  "prompt": "heal-target",
+  "model": "muse-spark-1.3",
+  "inputHash": "8cea5dc48416e1ea789211aa5e57e376",
+  "at": "2026-10-26T23:01:16.957Z",
+  "input": {
+    "tool": "get_order_status",
+    "access": "read",
+    "screen": {
+      "name": "Order Status",
+      "url": "/Orders/Status.aspx",
+      "title": "Contoso Order Entry - Order Status"
+    },
+    "missing": {
+      "key": "orderNumber",
+      "intent": "the value for \"Order #\"",
+      "op": "fill",
+      "oldLocators": [
+        {
+          "by": "role",
+          "role": "textbox",
+          "name": "Order #:"
+        },
+        {
+          "by": "label",
+          "text": "Order #:"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_txtOrderNumber"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$txtOrderNumber"
+        }
+      ],
+      "kind": "input",
+      "label": "Order #:",
+      "text": "Order #:"
+    },
+    "candidates": [
+      {
+        "ref": "e6",
+        "kind": "input",
+        "tag": "input",
+        "type": "text",
+        "id": "ctl00_MainContent_txtSalesOrderNo",
+        "name": "ctl00$MainContent$txtSalesOrderNo",
+        "label": "Sales Order No.:",
+        "section": "Find Order",
+        "maxLength": 8
+      },
+      {
+        "ref": "e7",
+        "kind": "button",
+        "tag": "input",
+        "type": "submit",
+        "id": "ctl00_MainContent_btnFind",
+        "name": "ctl00$MainContent$btnFind",
+        "text": "Find",
+        "section": "Find Order"
+      }
+    ]
+  },
+  "output": {
+    "reason": "Sales Order No. input sits in Find Order where Order # was and takes the same order number.",
+    "ref": "e6"
+  }
+}

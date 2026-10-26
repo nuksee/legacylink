@@ -4,7 +4,8 @@
 //   LEGACYLINK_MODEL=live       call Muse Spark; answers are recorded, and a recorded answer is reused
 //   LEGACYLINK_MODEL=replay     answer only from recordings; a miss is an error (for rehearsals)
 //   LEGACYLINK_MODEL=heuristic  no model: the rule-based stand-in (tests, CI, offline)
-// Default: live when MODEL_API_KEY is set, heuristic otherwise.
+// Default: live when MODEL_API_KEY is set, heuristic otherwise. Live without a key sends no
+// Authorization header, for a proxy that injects it.
 
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -98,11 +99,11 @@ function checkSearch(input: SearchValuesInput, out: SearchValuesOutput): string[
 
 export function createModel(opts: ModelOptions): Model & { mode: ModelMode } {
   const env = opts.env ?? process.env;
-  const cfg = museConfigFromEnv(env);
-  const mode: ModelMode = opts.mode ?? (env.LEGACYLINK_MODEL as ModelMode | undefined) ?? (cfg ? 'live' : 'heuristic');
+  const asked = opts.mode ?? (env.LEGACYLINK_MODEL as ModelMode | undefined);
+  const cfg = museConfigFromEnv(env, asked);
+  const mode: ModelMode = asked ?? (cfg ? 'live' : 'heuristic');
   if (!['live', 'replay', 'heuristic'].includes(mode)) throw new ModelError(`Unknown LEGACYLINK_MODEL "${mode}"`);
   if (mode === 'heuristic') return { ...heuristicModel, mode };
-  if (mode === 'live' && !cfg) throw new ModelError('LEGACYLINK_MODEL=live needs MODEL_API_KEY');
   const modelId = cfg?.model ?? env.MUSE_MODEL ?? 'muse-spark-1.3';
 
   async function call<I extends object, O>(

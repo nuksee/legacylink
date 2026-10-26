@@ -1,0 +1,69 @@
+{
+  "prompt": "heal-target",
+  "model": "muse-spark-1.3",
+  "inputHash": "7e48098cbf302ce86da9eb1e3bc26393",
+  "at": "2026-10-26T23:01:37.279Z",
+  "input": {
+    "tool": "create_sales_order",
+    "access": "write",
+    "screen": {
+      "name": "New Sales Order",
+      "url": "/Orders/New.aspx",
+      "title": "Contoso Order Entry - New Sales Order"
+    },
+    "missing": {
+      "key": "customerId",
+      "intent": "the value for \"Customer #\"",
+      "op": "fill",
+      "oldLocators": [
+        {
+          "by": "role",
+          "role": "textbox",
+          "name": "Account No.:"
+        },
+        {
+          "by": "label",
+          "text": "Account No.:"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_txtAccountNo"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$txtAccountNo"
+        }
+      ],
+      "kind": "input",
+      "label": "Account No.:",
+      "text": "Account No.:"
+    },
+    "candidates": [
+      {
+        "ref": "e7",
+        "kind": "input",
+        "tag": "input",
+        "type": "text",
+        "id": "ctl00_MainContent_txtCustomerId",
+        "name": "ctl00$MainContent$txtCustomerId",
+        "label": "Customer #:",
+        "section": "Customer",
+        "maxLength": 5,
+        "required": true
+      },
+      {
+        "ref": "e18",
+        "kind": "button",
+        "tag": "input",
+        "type": "submit",
+        "id": "ctl00_MainContent_btnSave",
+        "name": "ctl00$MainContent$btnSave",
+        "text": "Save Order"
+      }
+    ]
+  },
+  "output": {
+    "reason": "The Customer #: input in the Customer section is the renamed Account No. field for entering the customer identifier.",
+    "ref": "e7"
+  }
+}

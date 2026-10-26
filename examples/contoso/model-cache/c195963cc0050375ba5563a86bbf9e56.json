@@ -1,0 +1,58 @@
+{
+  "prompt": "heal-target",
+  "model": "muse-spark-1.3",
+  "inputHash": "c195963cc0050375ba5563a86bbf9e56",
+  "at": "2026-10-26T23:01:52.363Z",
+  "input": {
+    "tool": "get_order_status",
+    "access": "read",
+    "screen": {
+      "name": "Order Status",
+      "url": "/Orders/Status.aspx",
+      "title": "Contoso Order Entry - Order Status"
+    },
+    "missing": {
+      "key": "lookUp",
+      "intent": "the \"Look Up\" button",
+      "op": "click",
+      "oldLocators": [
+        {
+          "by": "role",
+          "role": "button",
+          "name": "Find"
+        },
+        {
+          "by": "id",
+          "id": "ctl00_MainContent_btnFind"
+        },
+        {
+          "by": "name",
+          "name": "ctl00$MainContent$btnFind"
+        },
+        {
+          "by": "text",
+          "text": "Find",
+          "exact": true
+        }
+      ],
+      "kind": "button",
+      "text": "Find"
+    },
+    "candidates": [
+      {
+        "ref": "e7",
+        "kind": "button",
+        "tag": "input",
+        "type": "submit",
+        "id": "ctl00_MainContent_btnLookup",
+        "name": "ctl00$MainContent$btnLookup",
+        "text": "Look Up",
+        "section": "Find Order"
+      }
+    ]
+  },
+  "output": {
+    "reason": "The Look Up button sits next to Order # in Find Order where Find was, with the btnLookup id showing the Find to Look Up rename.",
+    "ref": "e7"
+  }
+}
