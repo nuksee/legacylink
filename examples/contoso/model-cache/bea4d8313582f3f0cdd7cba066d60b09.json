@@ -1,13 +1,12 @@
 {
   "prompt": "learn-task",
   "model": "muse-spark-1.3",
-  "inputHash": "18755b3af820de7264d4cb3c73a358d2",
-  "at": "2026-10-26T22:59:41.029Z",
+  "inputHash": "bea4d8313582f3f0cdd7cba066d60b09",
+  "at": "2026-10-26T22:59:23.360Z",
   "input": {
-    "task": "Create a sales order for a customer with up to three product lines",
+    "task": "Get the status of a sales order by its order number",
     "graph": {
       "app": "Contoso Order Entry",
-      "exploredAt": "2026-10-26T20:44:01.824Z",
       "screens": [
         {
           "id": "log-in",
@@ -833,78 +832,13 @@
     }
   },
   "output": {
-    "access": "write",
-    "description": "Creates a new sales order for a customer with up to three product lines. Returns the new order number. A person must approve it before it is saved.",
+    "access": "read",
+    "description": "Looks up a sales order by its order number and returns its status, dates, totals and line items. Read-only and makes no changes.",
     "inputSchema": {
       "properties": {
-        "customerId": {
-          "description": "The customer number the order is for.",
-          "maxLength": 5,
-          "type": "string"
-        },
-        "lines": {
-          "description": "Product lines to order, up to three.",
-          "items": {
-            "properties": {
-              "productId": {
-                "description": "The product code for the line.",
-                "enum": [
-                  "P-100",
-                  "P-110",
-                  "P-200",
-                  "P-300",
-                  "P-400"
-                ],
-                "type": "string"
-              },
-              "quantity": {
-                "description": "The quantity for the line.",
-                "minimum": 1,
-                "type": "integer"
-              }
-            },
-            "required": [
-              "productId",
-              "quantity"
-            ],
-            "type": "object"
-          },
-          "maxItems": 3,
-          "minItems": 1,
-          "type": "array"
-        },
-        "poNumber": {
-          "description": "The customer PO number for the order.",
-          "maxLength": 20,
-          "type": "string"
-        },
-        "shipTo": {
-          "description": "The ship-to address for the order.",
-          "type": "string"
-        },
-        "shipVia": {
-          "description": "How to ship the order.",
-          "enum": [
-            "Ground",
-            "2nd Day Air",
-            "Next Day Air",
-            "Will Call"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "customerId",
-        "shipTo",
-        "lines"
-      ],
-      "type": "object"
-    },
-    "name": "create_sales_order",
-    "outputSchema": {
-      "properties": {
         "orderNumber": {
-          "description": "The new sales order number.",
+          "description": "The sales order number to look up.",
+          "maxLength": 8,
           "type": "string"
         }
       },
@@ -913,63 +847,171 @@
       ],
       "type": "object"
     },
+    "name": "get_order_status",
+    "outputSchema": {
+      "properties": {
+        "customer": {
+          "description": "Customer shown on the order.",
+          "type": "string"
+        },
+        "lines": {
+          "description": "Line items on the order.",
+          "items": {
+            "properties": {
+              "description": {
+                "description": "Line description.",
+                "type": "string"
+              },
+              "extendedPrice": {
+                "description": "Extended line price.",
+                "type": "number"
+              },
+              "quantity": {
+                "description": "Ordered quantity.",
+                "type": "integer"
+              },
+              "sku": {
+                "description": "Product SKU.",
+                "type": "string"
+              },
+              "unitPrice": {
+                "description": "Unit price.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "sku",
+              "description",
+              "quantity",
+              "unitPrice",
+              "extendedPrice"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "orderDate": {
+          "description": "Date the order was placed.",
+          "type": "string"
+        },
+        "orderNumber": {
+          "description": "The sales order number.",
+          "type": "string"
+        },
+        "poNumber": {
+          "description": "Purchase order number on the order.",
+          "type": "string"
+        },
+        "shipDate": {
+          "description": "Date the order shipped, if shipped.",
+          "type": "string"
+        },
+        "shipVia": {
+          "description": "Shipping method.",
+          "type": "string"
+        },
+        "status": {
+          "description": "Current status of the order.",
+          "type": "string"
+        },
+        "total": {
+          "description": "Order total amount.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "orderNumber",
+        "customer",
+        "status",
+        "orderDate",
+        "shipDate",
+        "shipVia",
+        "poNumber",
+        "total",
+        "lines"
+      ],
+      "type": "object"
+    },
     "steps": [
       {
         "op": "open",
-        "screen": "new-sales-order"
+        "screen": "order-status"
       },
       {
-        "element": "customerId",
+        "element": "orderNumber",
         "op": "fill",
-        "screen": "new-sales-order",
-        "value": "$input.customerId"
+        "screen": "order-status",
+        "value": "$input.orderNumber"
       },
       {
-        "element": "shipTo",
-        "op": "fill",
-        "screen": "new-sales-order",
-        "value": "$input.shipTo"
+        "edge": "order-status:lookUp",
+        "element": "lookUp",
+        "op": "click",
+        "screen": "order-status"
       },
       {
-        "element": "poNumber",
-        "op": "fill",
-        "screen": "new-sales-order",
-        "value": "$input.poNumber"
+        "element": "orderNumber2",
+        "into": "orderNumber",
+        "op": "read",
+        "screen": "order-status"
+      },
+      {
+        "element": "customer",
+        "into": "customer",
+        "op": "read",
+        "screen": "order-status"
+      },
+      {
+        "element": "status",
+        "into": "status",
+        "op": "read",
+        "screen": "order-status"
+      },
+      {
+        "element": "orderDate",
+        "into": "orderDate",
+        "op": "read",
+        "parse": "date",
+        "screen": "order-status"
+      },
+      {
+        "element": "shipDate",
+        "into": "shipDate",
+        "op": "read",
+        "parse": "date",
+        "screen": "order-status"
       },
       {
         "element": "shipVia",
-        "op": "select",
-        "screen": "new-sales-order",
-        "value": "$input.shipVia"
+        "into": "shipVia",
+        "op": "read",
+        "screen": "order-status"
       },
       {
-        "items": "$input.lines",
-        "op": "forEach",
-        "steps": [
-          {
-            "element": "product$line",
-            "op": "select",
-            "screen": "new-sales-order",
-            "value": "$item.productId"
-          },
-          {
-            "element": "qty$line",
-            "op": "fill",
-            "screen": "new-sales-order",
-            "value": "$item.quantity"
-          }
-        ]
+        "element": "poNumber",
+        "into": "poNumber",
+        "op": "read",
+        "screen": "order-status"
       },
       {
-        "edge": "new-sales-order:saveOrder",
-        "element": "saveOrder",
-        "op": "click",
-        "screen": "new-sales-order"
+        "element": "total",
+        "into": "total",
+        "op": "read",
+        "parse": "money",
+        "screen": "order-status"
       },
       {
-        "intent": "the new order number",
-        "into": "orderNumber",
-        "op": "readAfterCommit"
+        "columns": {
+          "description": "Description",
+          "extendedPrice": "Extended",
+          "quantity": "Qty",
+          "sku": "SKU",
+          "unitPrice": "Unit Price"
+        },
+        "element": "linesGrid",
+        "into": "lines",
+        "op": "readTable",
+        "screen": "order-status"
       }
     ]
   }

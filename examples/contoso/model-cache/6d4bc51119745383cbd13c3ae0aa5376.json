@@ -1,13 +1,12 @@
 {
   "prompt": "learn-task",
   "model": "muse-spark-1.3",
-  "inputHash": "61c45ad444fbaf4a65c0960170ec9a76",
-  "at": "2026-10-26T22:59:13.189Z",
+  "inputHash": "6d4bc51119745383cbd13c3ae0aa5376",
+  "at": "2026-10-26T22:59:41.029Z",
   "input": {
-    "task": "Look up a customer's details, credit and orders by customer number",
+    "task": "Create a sales order for a customer with up to three product lines",
     "graph": {
       "app": "Contoso Order Entry",
-      "exploredAt": "2026-10-26T20:44:01.824Z",
       "screens": [
         {
           "id": "log-in",
@@ -833,198 +832,143 @@
     }
   },
   "output": {
-    "access": "read",
-    "description": "Looks up a customer by customer number and returns contact details, credit balances and order history.",
+    "access": "write",
+    "description": "Creates a new sales order for a customer with up to three product lines. Returns the new order number. A person must approve it before it is saved.",
     "inputSchema": {
-      "additionalProperties": false,
       "properties": {
         "customerId": {
-          "description": "The customer number to look up",
+          "description": "The customer number the order is for.",
           "maxLength": 5,
           "type": "string"
-        }
-      },
-      "required": [
-        "customerId"
-      ],
-      "type": "object"
-    },
-    "name": "get_customer_details",
-    "outputSchema": {
-      "additionalProperties": false,
-      "properties": {
-        "available": {
-          "description": "Available credit amount",
-          "type": "number"
         },
-        "balance": {
-          "description": "Current balance amount",
-          "type": "number"
-        },
-        "cityState": {
-          "description": "City and state",
-          "type": "string"
-        },
-        "contact": {
-          "description": "Contact person",
-          "type": "string"
-        },
-        "creditLimit": {
-          "description": "Credit limit amount",
-          "type": "number"
-        },
-        "customerId": {
-          "description": "The customer number",
-          "type": "string"
-        },
-        "name": {
-          "description": "Customer name",
-          "type": "string"
-        },
-        "orders": {
-          "description": "Orders for the customer",
+        "lines": {
+          "description": "Product lines to order, up to three.",
           "items": {
-            "additionalProperties": false,
             "properties": {
-              "date": {
-                "description": "Order date",
+              "productId": {
+                "description": "The product code for the line.",
+                "enum": [
+                  "P-100",
+                  "P-110",
+                  "P-200",
+                  "P-300",
+                  "P-400"
+                ],
                 "type": "string"
               },
-              "orderNumber": {
-                "description": "Order number",
-                "type": "string"
-              },
-              "status": {
-                "description": "Order status",
-                "type": "string"
-              },
-              "total": {
-                "description": "Order total",
-                "type": "string"
+              "quantity": {
+                "description": "The quantity for the line.",
+                "minimum": 1,
+                "type": "integer"
               }
             },
             "required": [
-              "orderNumber",
-              "date",
-              "status",
-              "total"
+              "productId",
+              "quantity"
             ],
             "type": "object"
           },
+          "maxItems": 3,
+          "minItems": 1,
           "type": "array"
         },
-        "phone": {
-          "description": "Phone number",
+        "poNumber": {
+          "description": "The customer PO number for the order.",
+          "maxLength": 20,
+          "type": "string"
+        },
+        "shipTo": {
+          "description": "The ship-to address for the order.",
+          "type": "string"
+        },
+        "shipVia": {
+          "description": "How to ship the order.",
+          "enum": [
+            "Ground",
+            "2nd Day Air",
+            "Next Day Air",
+            "Will Call"
+          ],
           "type": "string"
         }
       },
       "required": [
         "customerId",
-        "name",
-        "contact",
-        "phone",
-        "cityState",
-        "creditLimit",
-        "balance",
-        "available",
-        "orders"
+        "shipTo",
+        "lines"
+      ],
+      "type": "object"
+    },
+    "name": "create_sales_order",
+    "outputSchema": {
+      "properties": {
+        "orderNumber": {
+          "description": "The new sales order number.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderNumber"
       ],
       "type": "object"
     },
     "steps": [
       {
         "op": "open",
-        "screen": "customer-inquiry"
-      },
-      {
-        "element": "searchId",
-        "op": "fill",
-        "screen": "customer-inquiry",
-        "value": "$input.customerId"
-      },
-      {
-        "edge": "customer-inquiry:search",
-        "element": "search",
-        "op": "click",
-        "screen": "customer-inquiry"
-      },
-      {
-        "edge": "customer-inquiry:customersSelectLink",
-        "element": "customersSelectLink",
-        "match": {
-          "column": "Customer #",
-          "value": "$input.customerId"
-        },
-        "op": "clickRow",
-        "screen": "customer-inquiry"
+        "screen": "new-sales-order"
       },
       {
         "element": "customerId",
-        "into": "customerId",
-        "op": "read",
-        "parse": "text",
-        "screen": "customer-details"
+        "op": "fill",
+        "screen": "new-sales-order",
+        "value": "$input.customerId"
       },
       {
-        "element": "name",
-        "into": "name",
-        "op": "read",
-        "parse": "text",
-        "screen": "customer-details"
+        "element": "shipTo",
+        "op": "fill",
+        "screen": "new-sales-order",
+        "value": "$input.shipTo"
       },
       {
-        "element": "contact",
-        "into": "contact",
-        "op": "read",
-        "parse": "text",
-        "screen": "customer-details"
+        "element": "poNumber",
+        "op": "fill",
+        "screen": "new-sales-order",
+        "value": "$input.poNumber"
       },
       {
-        "element": "phone",
-        "into": "phone",
-        "op": "read",
-        "parse": "text",
-        "screen": "customer-details"
+        "element": "shipVia",
+        "op": "select",
+        "screen": "new-sales-order",
+        "value": "$input.shipVia"
       },
       {
-        "element": "cityState",
-        "into": "cityState",
-        "op": "read",
-        "parse": "text",
-        "screen": "customer-details"
+        "items": "$input.lines",
+        "op": "forEach",
+        "steps": [
+          {
+            "element": "product$line",
+            "op": "select",
+            "screen": "new-sales-order",
+            "value": "$item.productId"
+          },
+          {
+            "element": "qty$line",
+            "op": "fill",
+            "screen": "new-sales-order",
+            "value": "$item.quantity"
+          }
+        ]
       },
       {
-        "element": "creditLimit",
-        "into": "creditLimit",
-        "op": "read",
-        "parse": "money",
-        "screen": "customer-details"
+        "edge": "new-sales-order:saveOrder",
+        "element": "saveOrder",
+        "op": "click",
+        "screen": "new-sales-order"
       },
       {
-        "element": "balance",
-        "into": "balance",
-        "op": "read",
-        "parse": "money",
-        "screen": "customer-details"
-      },
-      {
-        "element": "available",
-        "into": "available",
-        "op": "read",
-        "parse": "money",
-        "screen": "customer-details"
-      },
-      {
-        "columns": {
-          "date": "Date",
-          "orderNumber": "Order #",
-          "status": "Status",
-          "total": "Total"
-        },
-        "element": "ordersGrid",
-        "into": "orders",
-        "op": "readTable",
-        "screen": "customer-details"
+        "intent": "the new order number",
+        "into": "orderNumber",
+        "op": "readAfterCommit"
       }
     ]
   }

@@ -42,10 +42,11 @@ export interface LearnedTask extends TaskBody {
 }
 
 // The graph as the learner sees it: no locators, screenshots or fingerprints,
-// and only edges a task can follow (explored ones, plus commits).
+// and only edges a task can follow (explored ones, plus commits). No
+// exploredAt either: re-exploring an unchanged app must give the same view, so
+// recorded learn answers replay (the date is kept in the task's provenance).
 export interface LearnGraph {
   app: string;
-  exploredAt: string;
   screens: {
     id: string;
     name: string;
@@ -60,7 +61,6 @@ export interface LearnGraph {
 export function learnGraph(graph: ScreenGraph): LearnGraph {
   return {
     app: graph.app.name,
-    exploredAt: graph.exploredAt,
     screens: graph.screens.map((s) => ({
       id: s.id,
       name: s.name,

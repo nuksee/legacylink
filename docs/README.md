@@ -9,3 +9,4 @@ Planning notes for LegacyLink, gathered before the build window opens on Oct 26,
 - [learner.md](learner.md): turning a one-sentence task into a learned task, and the three demo tasks.
 - [compiler.md](compiler.md): compiling learned tasks into tool specs, the runner, the MCP server and the approval console.
 - [healer.md](healer.md): self-heal after UI drift, where the heal shows up, and its safety rules.
+- [demo.md](demo.md): the demo runbook: the one-command demo, the model switch, the repeat harness and what to do when something breaks on stage.
