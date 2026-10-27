@@ -1,5 +1,7 @@
 node_modules/
 dist/
 .legacylink/
+.legacylink-failures/
+demo-report.json
 test-results/
 scratch/

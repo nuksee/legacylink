@@ -19,7 +19,7 @@ Enterprises still run legacy apps with no API (WinForms, WebForms, Citrix-publis
 
 ## Status
 
-Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)), the learner ([docs/learner.md](docs/learner.md)), the compiler, runner, MCP server and approval console ([docs/compiler.md](docs/compiler.md)), and self-heal ([docs/healer.md](docs/healer.md)). Next: demo hardening.
+Building. Done so far: the screen graph format, the explorer ([docs/explorer.md](docs/explorer.md)), the learner ([docs/learner.md](docs/learner.md)), the compiler, runner, MCP server and approval console ([docs/compiler.md](docs/compiler.md)), self-heal ([docs/healer.md](docs/healer.md)), and the scripted end-to-end demo with its runbook ([docs/demo.md](docs/demo.md)).
 
 ```sh
 npm install
@@ -28,4 +28,7 @@ npm run legacylink -- learn "Get the status of a sales order by its order number
 npm run legacylink -- compile --examples examples/contoso/examples.json --user demo
 npm run legacylink -- serve      # MCP over stdio; approve writes at http://127.0.0.1:5180
 npm test
+
+# the whole demo in one command (Contoso checked out next to this repo)
+npm run legacylink -- demo --contoso ../contoso-order-entry
 ```

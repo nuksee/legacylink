@@ -16,6 +16,7 @@ import type { LearnedTask } from './formats/task.js';
 import { validateLearnedTask } from './formats/validate.js';
 import { learnGraph } from './formats/task.js';
 import { serve } from './mcp/server.js';
+import { repeatDemo, runDemo, startContoso, type DemoOptions } from './demo/demo.js';
 import { Workspace } from './workspace.js';
 import { explore } from './explorer/explore.js';
 import { learn, loadGraph, writeTask } from './learner/learn.js';
@@ -27,6 +28,7 @@ const USAGE = `Usage: legacylink explore --url <base URL> [options]
        legacylink compile [task.json ...] --examples <file> [options]
        legacylink run <tool> '<input JSON>' [--approve]
        legacylink serve [--console-port 5180] [--no-console]
+       legacylink demo [--contoso <dir>] [--repeat <n>] [options]   (see docs/demo.md)
 
 Options:
   --url <url>            the app's base URL, e.g. http://localhost:5080
@@ -197,8 +199,67 @@ async function learnCommand(rest: string[]): Promise<number> {
   return 0;
 }
 
+async function demoCommand(rest: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args: rest,
+    options: {
+      url: { type: 'string', default: 'http://localhost:5080' },
+      contoso: { type: 'string' },
+      out: { type: 'string', default: '.legacylink' },
+      user: { type: 'string', default: 'demo' },
+      'password-env': { type: 'string', default: 'LEGACYLINK_PASSWORD' },
+      prebuilt: { type: 'boolean', default: false },
+      'setup-only': { type: 'boolean', default: false },
+      'explore-model': { type: 'string' },
+      'auto-approve': { type: 'boolean', default: false },
+      pause: { type: 'boolean', default: false },
+      headed: { type: 'boolean', default: false },
+      'console-port': { type: 'string', default: '5180' },
+      'keep-drift': { type: 'boolean', default: false },
+      model: { type: 'string' },
+      repeat: { type: 'string' },
+      report: { type: 'string' },
+    },
+  });
+  const env = { ...process.env };
+  // The demo's default is replay: Muse Spark's recorded answers, no network. Live is one switch.
+  const model = (values.model ?? env.LEGACYLINK_MODEL ?? 'replay') as ModelMode;
+  if (!['live', 'replay', 'heuristic'].includes(model)) throw new Error(`Unknown model mode "${model}"`);
+  const exploreModel = (values['explore-model'] ?? 'heuristic') as ModelMode;
+  if (env[values['password-env']!] === undefined) env[values['password-env']!] = 'demo'; // Contoso's demo login
+  const opts: DemoOptions = {
+    url: values.url!,
+    out: values.out!,
+    user: values.user!,
+    passwordEnv: values['password-env']!,
+    model,
+    exploreModel,
+    prebuilt: values.prebuilt!,
+    setupOnly: values['setup-only']!,
+    autoApprove: values['auto-approve']!,
+    pause: values.pause!,
+    headed: values.headed!,
+    consolePort: Number(values['console-port']),
+    keepDrift: values['keep-drift']!,
+    quiet: false,
+    env,
+  };
+  const contoso = values.contoso ? await startContoso(values.contoso, opts.url, (l) => console.error(l)) : undefined;
+  try {
+    if (values.repeat) return (await repeatDemo(opts, Number(values.repeat), values.report)).every((r) => r.ok) ? 0 : 1;
+    const r = await runDemo(opts);
+    console.error(`\n${r.ok ? 'Demo passed' : 'Demo FAILED'} in ${(r.ms / 1000).toFixed(1)} s (model ${r.model})`);
+    for (const a of r.acts) console.error(`  ${a.ok ? 'ok  ' : 'FAIL'} ${String(a.ms).padStart(6)} ms  ${a.name}`);
+    if (r.ok && !opts.keepDrift && !opts.setupOnly) console.error('Rename drift is off again. The state folder keeps v2 of the healed tools.');
+    return r.ok ? 0 : 1;
+  } finally {
+    contoso?.kill();
+  }
+}
+
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
+  if (command === 'demo') return demoCommand(rest);
   if (command === 'learn') return learnCommand(rest);
   if (command === 'compile') return compileCommand(rest);
   if (command === 'run') return runCommand(rest);

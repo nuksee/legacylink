@@ -228,6 +228,12 @@ export function compileDraft(opts: CompileOptions): ToolSpec {
 
   for (const s of task.steps) steps.push(...convert(s));
 
+  // Legacy screens leave fields blank ("-"), and a blank is left out of the
+  // output. So a read requires only the fields that echo its input, and a
+  // grid row requires nothing; a write keeps its required results.
+  const echoes = Object.keys(inputs);
+  const outputSchema = relaxRequired(task.outputSchema, task.access === 'read' ? (n) => echoes.includes(n) : () => true);
+
   const checks: Check[] = [];
   if (task.access === 'read') {
     if (current) checks.push({ check: 'onScreen', screen: current });
@@ -237,7 +243,7 @@ export function compileDraft(opts: CompileOptions): ToolSpec {
   } else {
     const rb = readBack(task, opts.readTools ?? []);
     if (rb) checks.push(rb);
-    for (const name of (task.outputSchema.required as string[] | undefined) ?? []) checks.push({ check: 'outputMatches', path: name, pattern: '\\S' });
+    for (const name of (outputSchema.required as string[] | undefined) ?? []) checks.push({ check: 'outputMatches', path: name, pattern: '\\S' });
   }
 
   return {
@@ -247,7 +253,7 @@ export function compileDraft(opts: CompileOptions): ToolSpec {
     description: task.description,
     access: task.access,
     inputSchema: task.inputSchema,
-    outputSchema: task.outputSchema,
+    outputSchema,
     screens,
     steps,
     postcondition: { checks },
@@ -265,3 +271,15 @@ export function compileDraft(opts: CompileOptions): ToolSpec {
 
 // Steps a draft still needs the verify run for: extracts with no locators.
 export const pendingTargets = (spec: ToolSpec) => spec.steps.filter((s) => s.op === 'extract' && !s.target.locators.length).length;
+
+function relaxRequired(schema: JsonSchema, keep: (name: string) => boolean): JsonSchema {
+  const strip = (s: JsonSchema): JsonSchema => {
+    const { required: _, ...rest } = s;
+    if (rest.items) rest.items = strip(rest.items as JsonSchema);
+    if (rest.properties) rest.properties = Object.fromEntries(Object.entries(rest.properties as Record<string, JsonSchema>).map(([k, v]) => [k, strip(v)]));
+    return rest;
+  };
+  const out = strip(schema);
+  const required = ((schema.required as string[] | undefined) ?? []).filter(keep);
+  return required.length ? { ...out, required } : out;
+}

@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { chromium, type Browser, type BrowserContext, type Locator as PwLocator, type Page } from 'playwright';
 import type { AppConfig } from '../compiler/compile.js';
 import type { Locator } from '../formats/graph.js';
-import type { Parse } from '../formats/task.js';
+import type { JsonSchema, Parse } from '../formats/task.js';
 import type { Check, Expr, Step, Target, ToolSpec } from '../formats/tool.js';
 import { ajv, formatErrors } from '../formats/validate.js';
 import type { Approver } from '../approval/gate.js';
@@ -95,6 +95,21 @@ export function parseValue(raw: string, parse: Parse = 'text'): unknown {
     default:
       return t;
   }
+}
+
+// Turns the text read off the screen into the output schema's types: "$7,500.00"
+// becomes 7500 where the schema says number, "40" becomes 40 where it says
+// integer. Grid cells are read as text, so this is what types them.
+export function coerceToSchema(value: unknown, schema: JsonSchema | undefined): unknown {
+  if (!schema) return value;
+  const type = schema.type;
+  if (typeof value === 'string' && (type === 'number' || type === 'integer')) return parseValue(value, type === 'integer' ? 'int' : 'money') ?? value;
+  if (Array.isArray(value)) return value.map((v) => coerceToSchema(v, schema.items as JsonSchema | undefined));
+  if (value && typeof value === 'object') {
+    const p = (schema.properties ?? {}) as Record<string, JsonSchema>;
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, coerceToSchema(v, p[k])]));
+  }
+  return value;
 }
 
 // $line is the 1-based row inside forEach, $index the 0-based one.
@@ -324,6 +339,7 @@ export class Session {
 
       stepIndex = -1;
       await this.checkErrors(spec, page, spec.steps.length);
+      vars.output = coerceToSchema(vars.output, spec.outputSchema) as Record<string, unknown>;
       result.output = vars.output;
       const failed = await this.postcondition(spec, page, vars, opts, runId);
       result.postcondition = failed ? 'failed' : 'passed';

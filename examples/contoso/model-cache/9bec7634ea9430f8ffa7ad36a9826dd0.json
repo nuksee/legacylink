@@ -1,13 +1,12 @@
 {
   "prompt": "learn-task",
   "model": "muse-spark-1.3",
-  "inputHash": "827b12fe3ebc368aa8020483873d3dd3",
-  "at": "2026-10-26T22:59:23.360Z",
+  "inputHash": "9bec7634ea9430f8ffa7ad36a9826dd0",
+  "at": "2026-10-26T22:59:13.189Z",
   "input": {
-    "task": "Get the status of a sales order by its order number",
+    "task": "Look up a customer's details, credit and orders by customer number",
     "graph": {
       "app": "Contoso Order Entry",
-      "exploredAt": "2026-10-26T20:44:01.824Z",
       "screens": [
         {
           "id": "log-in",
@@ -834,185 +833,197 @@
   },
   "output": {
     "access": "read",
-    "description": "Looks up a sales order by its order number and returns its status, dates, totals and line items. Read-only and makes no changes.",
+    "description": "Looks up a customer by customer number and returns contact details, credit balances and order history.",
     "inputSchema": {
+      "additionalProperties": false,
       "properties": {
-        "orderNumber": {
-          "description": "The sales order number to look up.",
-          "maxLength": 8,
+        "customerId": {
+          "description": "The customer number to look up",
+          "maxLength": 5,
           "type": "string"
         }
       },
       "required": [
-        "orderNumber"
+        "customerId"
       ],
       "type": "object"
     },
-    "name": "get_order_status",
+    "name": "get_customer_details",
     "outputSchema": {
+      "additionalProperties": false,
       "properties": {
-        "customer": {
-          "description": "Customer shown on the order.",
+        "available": {
+          "description": "Available credit amount",
+          "type": "number"
+        },
+        "balance": {
+          "description": "Current balance amount",
+          "type": "number"
+        },
+        "cityState": {
+          "description": "City and state",
           "type": "string"
         },
-        "lines": {
-          "description": "Line items on the order.",
+        "contact": {
+          "description": "Contact person",
+          "type": "string"
+        },
+        "creditLimit": {
+          "description": "Credit limit amount",
+          "type": "number"
+        },
+        "customerId": {
+          "description": "The customer number",
+          "type": "string"
+        },
+        "name": {
+          "description": "Customer name",
+          "type": "string"
+        },
+        "orders": {
+          "description": "Orders for the customer",
           "items": {
+            "additionalProperties": false,
             "properties": {
-              "description": {
-                "description": "Line description.",
+              "date": {
+                "description": "Order date",
                 "type": "string"
               },
-              "extendedPrice": {
-                "description": "Extended line price.",
-                "type": "number"
-              },
-              "quantity": {
-                "description": "Ordered quantity.",
-                "type": "integer"
-              },
-              "sku": {
-                "description": "Product SKU.",
+              "orderNumber": {
+                "description": "Order number",
                 "type": "string"
               },
-              "unitPrice": {
-                "description": "Unit price.",
-                "type": "number"
+              "status": {
+                "description": "Order status",
+                "type": "string"
+              },
+              "total": {
+                "description": "Order total",
+                "type": "string"
               }
             },
             "required": [
-              "sku",
-              "description",
-              "quantity",
-              "unitPrice",
-              "extendedPrice"
+              "orderNumber",
+              "date",
+              "status",
+              "total"
             ],
             "type": "object"
           },
           "type": "array"
         },
-        "orderDate": {
-          "description": "Date the order was placed.",
+        "phone": {
+          "description": "Phone number",
           "type": "string"
-        },
-        "orderNumber": {
-          "description": "The sales order number.",
-          "type": "string"
-        },
-        "poNumber": {
-          "description": "Purchase order number on the order.",
-          "type": "string"
-        },
-        "shipDate": {
-          "description": "Date the order shipped, if shipped.",
-          "type": "string"
-        },
-        "shipVia": {
-          "description": "Shipping method.",
-          "type": "string"
-        },
-        "status": {
-          "description": "Current status of the order.",
-          "type": "string"
-        },
-        "total": {
-          "description": "Order total amount.",
-          "type": "number"
         }
       },
       "required": [
-        "orderNumber",
-        "customer",
-        "status",
-        "orderDate",
-        "shipDate",
-        "shipVia",
-        "poNumber",
-        "total",
-        "lines"
+        "customerId",
+        "name",
+        "contact",
+        "phone",
+        "cityState",
+        "creditLimit",
+        "balance",
+        "available",
+        "orders"
       ],
       "type": "object"
     },
     "steps": [
       {
         "op": "open",
-        "screen": "order-status"
+        "screen": "customer-inquiry"
       },
       {
-        "element": "orderNumber",
+        "element": "searchId",
         "op": "fill",
-        "screen": "order-status",
-        "value": "$input.orderNumber"
+        "screen": "customer-inquiry",
+        "value": "$input.customerId"
       },
       {
-        "edge": "order-status:lookUp",
-        "element": "lookUp",
+        "edge": "customer-inquiry:search",
+        "element": "search",
         "op": "click",
-        "screen": "order-status"
+        "screen": "customer-inquiry"
       },
       {
-        "element": "orderNumber2",
-        "into": "orderNumber",
+        "edge": "customer-inquiry:customersSelectLink",
+        "element": "customersSelectLink",
+        "match": {
+          "column": "Customer #",
+          "value": "$input.customerId"
+        },
+        "op": "clickRow",
+        "screen": "customer-inquiry"
+      },
+      {
+        "element": "customerId",
+        "into": "customerId",
         "op": "read",
-        "screen": "order-status"
+        "parse": "text",
+        "screen": "customer-details"
       },
       {
-        "element": "customer",
-        "into": "customer",
+        "element": "name",
+        "into": "name",
         "op": "read",
-        "screen": "order-status"
+        "parse": "text",
+        "screen": "customer-details"
       },
       {
-        "element": "status",
-        "into": "status",
+        "element": "contact",
+        "into": "contact",
         "op": "read",
-        "screen": "order-status"
+        "parse": "text",
+        "screen": "customer-details"
       },
       {
-        "element": "orderDate",
-        "into": "orderDate",
+        "element": "phone",
+        "into": "phone",
         "op": "read",
-        "parse": "date",
-        "screen": "order-status"
+        "parse": "text",
+        "screen": "customer-details"
       },
       {
-        "element": "shipDate",
-        "into": "shipDate",
+        "element": "cityState",
+        "into": "cityState",
         "op": "read",
-        "parse": "date",
-        "screen": "order-status"
+        "parse": "text",
+        "screen": "customer-details"
       },
       {
-        "element": "shipVia",
-        "into": "shipVia",
-        "op": "read",
-        "screen": "order-status"
-      },
-      {
-        "element": "poNumber",
-        "into": "poNumber",
-        "op": "read",
-        "screen": "order-status"
-      },
-      {
-        "element": "total",
-        "into": "total",
+        "element": "creditLimit",
+        "into": "creditLimit",
         "op": "read",
         "parse": "money",
-        "screen": "order-status"
+        "screen": "customer-details"
+      },
+      {
+        "element": "balance",
+        "into": "balance",
+        "op": "read",
+        "parse": "money",
+        "screen": "customer-details"
+      },
+      {
+        "element": "available",
+        "into": "available",
+        "op": "read",
+        "parse": "money",
+        "screen": "customer-details"
       },
       {
         "columns": {
-          "description": "Description",
-          "extendedPrice": "Extended",
-          "quantity": "Qty",
-          "sku": "SKU",
-          "unitPrice": "Unit Price"
+          "date": "Date",
+          "orderNumber": "Order #",
+          "status": "Status",
+          "total": "Total"
         },
-        "element": "linesGrid",
-        "into": "lines",
+        "element": "ordersGrid",
+        "into": "orders",
         "op": "readTable",
-        "screen": "order-status"
+        "screen": "customer-details"
       }
     ]
   }
