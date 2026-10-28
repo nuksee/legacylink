@@ -70,7 +70,7 @@ ${body}
           page(
             'Sign In',
             `<table><tr><td><label for="txtUser">User:</label></td><td><input id="txtUser" name="txtUser" type="text" /></td></tr>
-             <tr><td><label for="txtPass">Password:</label></td><td><input id="txtPass" name="txtPass" type="password" /></td></tr></table>
+             <tr><td><label for="txtPass">Password:</label></td><td><input id="txtPass" name="txtPass" type="password" /> <button type="button" id="btnShowPass">Show password</button></td></tr></table>
              <input type="submit" id="btnLogin" name="btnLogin" value="Sign In" />`,
             false,
           ),

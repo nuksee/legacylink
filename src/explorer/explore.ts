@@ -36,6 +36,7 @@ interface Built extends Element {
   gridKey?: string; // gridLinks: key of their grid on the same screen
   isPassword?: boolean;
   href?: string;
+  submit?: boolean; // buttons: submits its form (type=submit)
 }
 
 interface BuiltScreen extends Omit<Screen, 'elements'> {
@@ -64,7 +65,8 @@ interface Task {
   searchFields: string[];
 }
 
-const DESTRUCTIVE_LINK = /^(delete|remove|void|approve|post|cancel \w+)\b/i;
+const LOGIN_PATTERN = /\b(log ?in|log ?on|sign ?in)\b/i;
+const DESTRUCTIVE_LINK =/^(delete|remove|void|approve|post|cancel \w+)\b/i;
 
 const PRIORITY: Record<EdgeKind, number> = { navigate: 0, postback: 1, search: 2, commit: 9 };
 
@@ -291,6 +293,7 @@ export async function explore(opts: ExploreOptions): Promise<ScreenGraph> {
         if (raw.maxLength) el.maxLength = raw.maxLength;
         if (raw.isPassword) el.isPassword = true;
         if (raw.href) el.href = raw.href;
+        if (raw.kind === 'button' && raw.type === 'submit') el.submit = true;
         screen.elements.push(el);
       }
       here.set(raw.ref, el);
@@ -366,7 +369,9 @@ export async function explore(opts: ExploreOptions): Promise<ScreenGraph> {
     if (!opts.credentials) throw new Error(`The app asks for a login at ${screen.urlPattern}; pass credentials`);
     const pass = screen.elements.find((e) => e.isPassword);
     const user = screen.elements.find((e) => e.kind === 'input' && !e.isPassword);
-    const button = screen.elements.find((e) => e.kind === 'button');
+    // Not just the first button: WordPress puts "Show password" (type=button) before "Log In".
+    const buttons = screen.elements.filter((e) => e.kind === 'button');
+    const button = buttons.find((e) => e.submit && LOGIN_PATTERN.test(`${e.intent} ${e.key}`)) ?? buttons.find((e) => e.submit) ?? buttons[0];
     if (!pass || !user || !button) throw new Error(`Can't find the login form on ${screen.id}`);
     const action: Action = { screen: screen.id, via: button.key, fills: [{ key: user.key, value: opts.credentials.user }, { key: pass.key, value: opts.credentials.password }] };
     await perform(action);
@@ -451,7 +456,7 @@ export async function explore(opts: ExploreOptions): Promise<ScreenGraph> {
     exploredAt: new Date().toISOString(),
     screens: screens.map(({ getUrl: _g, elements, ...s }) => ({
       ...s,
-      elements: elements.map(({ sig: _s, gridKey: _k, isPassword: _p, href: _h, ...e }) => e),
+      elements: elements.map(({ sig: _s, gridKey: _k, isPassword: _p, href: _h, submit: _b, ...e }) => e),
     })),
     edges: [...edges.values()],
   };
