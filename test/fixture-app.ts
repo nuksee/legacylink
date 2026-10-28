@@ -83,7 +83,7 @@ ${body}
       }
 
       if (path === '/' || path === '/Home.aspx') {
-        return send(page('Home', `<p><a id="lnkSearch" href="${href('/Search.aspx')}">Customer search</a></p>`));
+        return send(page('Home', `<p><a id="lnkSearch" href="${href('/Search.aspx')}">Customer search</a> <a id="lnkArchive" href="${href('/Invoice.aspx?view=archive')}">Archived invoices</a></p>`));
       }
       if (path === '/Search.aspx') {
         if (body.get('__EVENTTARGET') === 'gvResults') {
@@ -119,6 +119,10 @@ ${body}
               : `<span id="lblMsg" role="alert">Customer not found.</span>`,
           ),
         );
+      }
+      // The same page shows another screen with ?view=archive, the way WordPress's edit.php does with ?post_type.
+      if (path === '/Invoice.aspx' && url.searchParams.get('view') === 'archive') {
+        return send(page('Archived Invoices', `<p id="lblArchive">${invoices.length} invoices.</p>`));
       }
       if (path === '/Invoice.aspx') {
         let result = '';
