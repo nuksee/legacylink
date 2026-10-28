@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { before, describe, it } from 'node:test';
 import { compileDraft, loginSpec, pendingTargets } from '../src/compiler/compile.js';
 import type { ScreenGraph } from '../src/formats/graph.js';
@@ -16,7 +17,7 @@ const NOW = () => new Date('2026-10-27T10:00:00Z');
 let graph: ScreenGraph;
 let examples: Record<string, Record<string, unknown>>;
 before(async () => {
-  graph = await loadGraph(new URL('graph.json', EXAMPLES).pathname);
+  graph = await loadGraph(fileURLToPath(new URL('graph.json', EXAMPLES)));
   examples = JSON.parse(await readFile(new URL('examples.json', EXAMPLES), 'utf8'));
 });
 
@@ -83,6 +84,14 @@ describe('compile the Contoso tasks (draft, no browser)', () => {
       input: { orderNumber: '$output.orderNumber' },
       expect: { customer: { prefix: '$input.customerId' }, poNumber: { equals: '$input.poNumber' }, shipVia: { equals: '$input.shipVia' } },
     });
+  });
+
+  it('opens a screen at its entryUrl when the query picks the screen', async () => {
+    const withQuery = { ...graph, screens: graph.screens.map((sc) => (sc.id === 'customer-inquiry' ? { ...sc, entryUrl: '/Customers/Search.aspx?mode=all' } : sc)) };
+    const s = await compileDraft({ task: await task('get_customer_details'), graph: withQuery, example: examples.get_customer_details!, readTools: [], now: NOW });
+    const go = s.steps.find((x) => x.op === 'goto') as Extract<Step, { op: 'goto' }>;
+    assert.equal(go.url, '/Customers/Search.aspx?mode=all');
+    assert.equal(s.screens['customer-inquiry']!.url, '/Customers/Search.aspx');
   });
 
   it('without a matching read tool a write still checks its output', async () => {

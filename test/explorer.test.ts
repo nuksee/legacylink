@@ -46,6 +46,7 @@ for (const basePath of ['', '/apps/books']) {
 
     it('finds every screen, with paths relative to the base URL', () => {
       assert.deepEqual(graph.screens.map((s) => [s.id, s.urlPattern]).sort(), [
+        ['archived-invoices', '/Invoice.aspx'],
         ['customer', '/Customer.aspx'],
         ['find-customer', '/Search.aspx'],
         ['home', '/Home.aspx'],
@@ -92,6 +93,12 @@ for (const basePath of ['', '/apps/books']) {
         { value: '30', text: 'Net 30' },
         { value: '60', text: 'Net 60' },
       ]);
+    });
+
+    it('keeps the query string of a screen that the bare path does not show', () => {
+      assert.equal(screen('archived-invoices').entryUrl, '/Invoice.aspx?view=archive');
+      assert.equal(screen('new-invoice').entryUrl, undefined);
+      assert.equal(screen('find-customer').entryUrl, undefined);
     });
 
     it('marks which screens need a login', () => {

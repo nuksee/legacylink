@@ -425,6 +425,19 @@ export async function explore(opts: ExploreOptions): Promise<ScreenGraph> {
     }
     if (queue.length) log(`action budget reached, ${queue.length} actions left untried`);
 
+    // entryUrl: a screen reached with a query string keeps it when the bare path shows something
+    // else (WordPress: edit.php is Posts, edit.php?post_type=product is Products).
+    for (const s of screens) {
+      if (!s.getUrl?.includes('?')) continue;
+      try {
+        await page.goto(abs(s.urlPattern), { waitUntil: 'load' });
+        await settle(page);
+        if (rel(page.url()).path.toLowerCase() !== s.urlPattern.toLowerCase() || (await page.title()).replace(/\s+/g, ' ').trim() !== s.fingerprint.title) s.entryUrl = s.getUrl;
+      } catch {
+        s.entryUrl = s.getUrl;
+      }
+    }
+
     // requiresLogin: load each screen in a fresh, logged-out context and see where it lands.
     if (loginScreen) {
       const anon = await browser.newContext();

@@ -175,7 +175,7 @@ export function compileDraft(opts: CompileOptions): ToolSpec {
       case 'open': {
         const screen = useScreen(s.screen);
         current = s.screen;
-        return [{ op: 'goto', screen: s.screen, url: screen.urlPattern }];
+        return [{ op: 'goto', screen: s.screen, url: screen.entryUrl ?? screen.urlPattern }];
       }
       case 'fill':
       case 'select':

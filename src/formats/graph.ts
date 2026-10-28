@@ -15,6 +15,7 @@ export interface Screen {
   name: string; // "New Sales Order" (model-named)
   purpose: string; // one sentence (model-written)
   urlPattern: string; // "/Orders/New.aspx"
+  entryUrl?: string; // when the query picks the screen: "/wp-admin/edit.php?post_type=product"
   fingerprint: Fingerprint;
   requiresLogin: boolean;
   elements: Element[];
@@ -123,6 +124,7 @@ export const screenGraphSchema = {
           name: nonEmpty,
           purpose: nonEmpty,
           urlPattern: { type: 'string', pattern: '^/' },
+          entryUrl: { type: 'string', pattern: '^/' },
           fingerprint: {
             type: 'object',
             additionalProperties: false,
