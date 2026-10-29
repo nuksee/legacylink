@@ -76,7 +76,7 @@ Go down this list; each step is quicker than debugging.
 
 1. **Explore or learn fails** (a replay miss, a live call that fails): `demo --prebuilt` skips both and uses the checked-in graph and learned tasks from [examples/contoso/](../examples/contoso/). Everything from Compile on is the same.
 2. **Live Muse Spark is slow or down**: drop `--model live`; replay is the default. If even replay misses, `--model heuristic`. Heals fall back to the stand-in by themselves.
-3. **Port 5180 is busy** (a `serve` left over from a rehearsal): `pkill -f "cli.ts serve"`, or `--console-port 5181`.
+3. **Port 5180 is busy**: a new `serve` takes the port over from a leftover LegacyLink `serve` by itself. If something else holds it: `--console-port 5181`.
 4. **Contoso is in a strange state**: `curl -X POST localhost:5080/__admin/reset -H 'content-type: application/json' -d '{}'` or the button on http://localhost:5080/__admin. Every demo run does this first anyway.
 5. **The MCP client part fails**: run the tools from the CLI against the state the demo left (`run` heals the same way and asks for approval on the terminal):
    ```sh

@@ -8,7 +8,7 @@
 // this server's, so DNS rebinding can't reach it either.
 
 import { readFile } from 'node:fs/promises';
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { ApprovalGate } from '../approval/gate.js';
 import type { Workspace } from '../workspace.js';
@@ -17,6 +17,8 @@ export interface ConsoleOptions {
   workspace: Workspace;
   gate: ApprovalGate;
   port?: number; // 0 picks a free port
+  // Called when a newer serve asks this one to step down (POST /api/quit).
+  onQuit?: () => void;
 }
 
 export interface ConsoleServer {
@@ -67,18 +69,64 @@ export async function startConsole(opts: ConsoleOptions): Promise<ConsoleServer>
       const ok = gate.decide(decide[1]!, decide[2] === 'approve' ? 'approved' : 'rejected', 'console');
       return send(res, ok ? 200 : 404, JSON.stringify({ ok }));
     }
+    if (req.method === 'POST' && url.pathname === '/api/quit' && opts.onQuit) {
+      if (req.headers['x-legacylink'] !== '1') return send(res, 403, '{"error":"missing X-LegacyLink header"}');
+      send(res, 200, '{"ok":true}');
+      setImmediate(opts.onQuit);
+      return;
+    }
     send(res, 404, '{"error":"not found"}');
   };
 
   const server = createServer((req, res) => {
     handle(req, res).catch((e: Error) => send(res, 500, JSON.stringify({ error: e.message })));
   });
-  await new Promise<void>((r) => server.listen(opts.port ?? 5180, '127.0.0.1', r));
+  await listen(server, opts.port ?? 5180);
   port = (server.address() as AddressInfo).port;
   return {
     url: `http://127.0.0.1:${port}/`,
     close: () => new Promise((r) => server.close(() => r())),
   };
+}
+
+// A port already taken is usually an older serve that its MCP client left
+// running (Claude Desktop on Windows starts a short-lived probe server and
+// doesn't always stop it). Ask that console to quit and take the port over;
+// anything else on the port is a clear error, not a crash.
+async function listen(server: Server, wanted: number): Promise<void> {
+  const tryListen = () =>
+    new Promise<void>((resolve, reject) => {
+      const onError = (e: Error) => {
+        server.off('listening', onListening);
+        reject(e);
+      };
+      const onListening = () => {
+        server.off('error', onError);
+        resolve();
+      };
+      server.once('error', onError);
+      server.once('listening', onListening);
+      server.listen(wanted, '127.0.0.1');
+    });
+  try {
+    return await tryListen();
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== 'EADDRINUSE' || wanted === 0) throw e;
+  }
+  const quit = await fetch(`http://127.0.0.1:${wanted}/api/quit`, { method: 'POST', headers: { 'x-legacylink': '1' } })
+    .then((r) => r.text())
+    .catch(() => '');
+  if (quit !== '{"ok":true}') throw new Error(`Port ${wanted} is in use by something other than a LegacyLink console. Stop it or pass --console-port.`);
+  console.error(`LegacyLink console: took port ${wanted} over from an older serve`);
+  for (let i = 0; i < 50; i++) {
+    await new Promise((r) => setTimeout(r, 100));
+    try {
+      return await tryListen();
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== 'EADDRINUSE') throw e;
+    }
+  }
+  throw new Error(`Port ${wanted} is still in use after asking the older serve to quit. Pass --console-port.`);
 }
 
 const PAGE = `<!doctype html>
