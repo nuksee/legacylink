@@ -158,6 +158,7 @@ interface Screen {
   name: string;                    // "New Sales Order" (model-named)
   purpose: string;                 // one sentence (model-written)
   urlPattern: string;              // "/Orders/New.aspx"
+  entryUrl?: string;               // "/wp-admin/edit.php?post_type=product", when the query picks the screen
   fingerprint: Fingerprint;
   requiresLogin: boolean;
   elements: Element[];
@@ -204,6 +205,8 @@ interface Edge {
 ### Screen identity
 
 Two page loads are the same screen when the URL path matches `urlPattern` and the fingerprint's title or heading matches. Query strings are ignored, so `Details.aspx?id=C1001` and `?id=C1003` are one screen. Element ids are not part of identity, so a renamed control doesn't create a new screen; that is what lets the healer find the screen after drift.
+
+Some apps pick the screen with the query: WordPress shows Posts at `edit.php` and Products at `edit.php?post_type=product`. After the crawl the explorer loads each screen it reached with a query by its bare path; if that shows another page, the screen keeps the query as `entryUrl`, and a tool that opens the screen goes there instead of `urlPattern`.
 
 ### Locators
 
