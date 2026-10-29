@@ -34,9 +34,10 @@ export interface McpOptions {
   session: Session;
   gate: ApprovalGate;
   healer?: Healer; // without one, drift just fails the call
+  consoleUrl?: string; // named in the "waiting for approval" progress
 }
 
-export function createMcpServer({ workspace, session, gate, healer }: McpOptions): Server {
+export function createMcpServer({ workspace, session, gate, healer, consoleUrl }: McpOptions): Server {
   const server = new Server({ name: 'legacylink', version: '0.1.0' }, { capabilities: { tools: { listChanged: true } } });
   const { registry } = workspace;
   // A heal registers a new version: tell the client its tool list changed.
@@ -65,7 +66,7 @@ export function createMcpServer({ workspace, session, gate, healer }: McpOptions
             void extra
               .sendNotification({
                 method: 'notifications/progress',
-                params: { progressToken: token, progress: ++progress, message: pending ? 'Waiting for approval in the LegacyLink console' : `Running ${spec.name}` },
+                params: { progressToken: token, progress: ++progress, message: pending ? `Waiting for approval in the LegacyLink console${consoleUrl ? ` at ${consoleUrl}` : ''}` : `Running ${spec.name}` },
               })
               .catch(() => {});
           }, PROGRESS_EVERY)
@@ -120,12 +121,25 @@ export async function serve(opts: ServeOptions): Promise<void> {
     await session.close();
     process.exit(0);
   };
+  // A newer serve may ask this one to give up the console port. Only a serve
+  // no client ever initialized (a leftover probe) steps down.
+  let clientConnected = false;
+  const onQuit = () => {
+    if (clientConnected) return false;
+    setImmediate(() => void shutdown());
+    return true;
+  };
+  let consoleUrl: string | undefined;
   if (opts.consolePort !== undefined) {
-    const c = await startConsole({ workspace, gate, port: opts.consolePort, onQuit: () => void shutdown() });
+    const c = await startConsole({ workspace, gate, port: opts.consolePort, onQuit });
+    consoleUrl = c.url;
     console.error(`LegacyLink console: ${c.url}`);
     gate.on('requested', (r) => console.error(`Approval needed for ${r.tool} (${r.id}): ${c.url}`));
   }
-  const server = createMcpServer({ workspace, session, gate, healer });
+  const server = createMcpServer({ workspace, session, gate, healer, consoleUrl });
+  server.oninitialized = () => {
+    clientConnected = true;
+  };
   server.onclose = () => void shutdown();
   process.on('SIGINT', () => void shutdown());
   process.on('SIGTERM', () => void shutdown());

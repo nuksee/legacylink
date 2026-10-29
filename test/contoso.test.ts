@@ -65,6 +65,12 @@ describe('Contoso Order Entry: compile and run the three demo tools', { skip: !U
     assert.ok(Array.isArray(r.output!.orders));
   });
 
+  it('a customer with no orders (no grid on the page) reads as an empty list, not drift', async () => {
+    const r = await run('get_customer_details', { customerId: 'C1006' });
+    assert.equal(r.outcome, 'ok', JSON.stringify(r.error));
+    assert.deepEqual(r.output!.orders, []);
+  });
+
   it('get_order_status leaves "-" fields out and reads the customer as shown', async () => {
     const r = await run('get_order_status', { orderNumber: 'SO-10044' });
     assert.equal(r.outcome, 'ok', JSON.stringify(r.error));

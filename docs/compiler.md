@@ -51,7 +51,7 @@ On Windows, Claude Desktop doesn't run `npx` without `cmd /c`; start tsx with `n
 }
 ```
 
-Claude Desktop starts a short-lived probe server before the real one and doesn't always stop it on Windows. When `serve` finds the console port taken by another LegacyLink console, it asks that one to quit (`POST /api/quit`) and takes the port over, so the console you open is always the live server's. Anything else on the port is an error that names `--console-port`.
+Claude Desktop starts a short-lived probe server before the real one and doesn't always stop it on Windows. When `serve` finds the console port taken by another LegacyLink console, it asks that one to quit (`POST /api/quit`) and takes the port over. A serve that already has a connected client refuses, and the new console moves to a free port (logged, and named in the write's "waiting for approval" progress). Anything else on the port is an error that names `--console-port`.
 
 A write call stays open until someone approves it or the 5-minute timeout runs out. If the client sends a `progressToken`, the server sends a progress notification every 10 seconds, which stops clients that support `resetTimeoutOnProgress` from timing out. A client with a short fixed timeout can still give up first, so open the console before the demo and approve right away.
 
@@ -70,7 +70,7 @@ Muse Spark isn't called at compile time yet. The learned task already holds ever
 
 - Every click waits for the postback or navigation to finish, then for `load`.
 - A `goto` that lands on the login page logs in and retries, so an expired session recovers.
-- `-` and empty values count as absent: the field is left out of the output. `parse: "money"` turns `$7,500.00` into `7500`.
+- `-` and empty values count as absent: the field is left out of the output. A grid that isn't on the page at all (Contoso shows "No orders on file.") reads as an empty list, unless some table on the page still has the grid's column captions: that's drift, and it fails so the healer can step in. `parse: "money"` turns `$7,500.00` into `7500`.
 - An optional input the caller leaves out (`poNumber`) skips its fill.
 - `clickRow` finds the row by its column caption and cell text. A missing column counts as drift (`locator_failed`). No matching row, or several, is the app's answer (`app_error` with `not_found` or `ambiguous`).
 
