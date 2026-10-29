@@ -18,7 +18,8 @@ export interface ConsoleOptions {
   gate: ApprovalGate;
   port?: number; // 0 picks a free port
   // Called when a newer serve asks this one to step down (POST /api/quit).
-  onQuit?: () => void;
+  // Returns false to stay: this serve has a connected MCP client.
+  onQuit?: () => boolean;
 }
 
 export interface ConsoleServer {
@@ -71,9 +72,8 @@ export async function startConsole(opts: ConsoleOptions): Promise<ConsoleServer>
     }
     if (req.method === 'POST' && url.pathname === '/api/quit' && opts.onQuit) {
       if (req.headers['x-legacylink'] !== '1') return send(res, 403, '{"error":"missing X-LegacyLink header"}');
-      send(res, 200, '{"ok":true}');
-      setImmediate(opts.onQuit);
-      return;
+      if (!opts.onQuit()) return send(res, 409, '{"ok":false,"busy":true}');
+      return send(res, 200, '{"ok":true}');
     }
     send(res, 404, '{"error":"not found"}');
   };
@@ -91,9 +91,11 @@ export async function startConsole(opts: ConsoleOptions): Promise<ConsoleServer>
 
 // A port already taken is usually an older serve that its MCP client left
 // running (Claude Desktop on Windows starts a short-lived probe server and
-// doesn't always stop it). Ask that console to quit and take the port over;
-// anything else on the port is a clear error, not a crash.
-async function listen(server: Server, wanted: number): Promise<void> {
+// doesn't always stop it). Ask that console to quit and take the port over.
+// An older serve that still has a connected client stays, and this console
+// moves to a free port instead; anything else on the port is a clear error.
+async function listen(server: Server, port: number): Promise<void> {
+  let wanted = port;
   const tryListen = () =>
     new Promise<void>((resolve, reject) => {
       const onError = (e: Error) => {
@@ -116,6 +118,11 @@ async function listen(server: Server, wanted: number): Promise<void> {
   const quit = await fetch(`http://127.0.0.1:${wanted}/api/quit`, { method: 'POST', headers: { 'x-legacylink': '1' } })
     .then((r) => r.text())
     .catch(() => '');
+  if (quit === '{"ok":false,"busy":true}') {
+    console.error(`LegacyLink console: port ${wanted} belongs to another serve with a connected client; using a free port`);
+    wanted = 0;
+    return tryListen();
+  }
   if (quit !== '{"ok":true}') throw new Error(`Port ${wanted} is in use by something other than a LegacyLink console. Stop it or pass --console-port.`);
   console.error(`LegacyLink console: took port ${wanted} over from an older serve`);
   for (let i = 0; i < 50; i++) {

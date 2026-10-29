@@ -157,6 +157,18 @@ const FIND_ROW = inPage(String.raw`
   const hits = rows.map((r, i) => ({ r, i })).filter(({ r }) => r !== header && norm(r.cells[col] ? r.cells[col].textContent : '').toLowerCase() === value.toLowerCase());
   return hits.length === 1 ? { index: hits[0].i } : { count: hits.length };`);
 
+// Is there a table on the page whose header row has every caption in arg?
+const HAS_TABLE = new Function(
+  'captions',
+  String.raw`
+  const norm = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  return Array.from(document.querySelectorAll('table')).some((t) => {
+    const header = Array.from(t.rows).find((r) => r.querySelector('th'));
+    const heads = header ? Array.from(header.cells).map((c) => norm(c.textContent)) : [];
+    return captions.every((c) => heads.includes(c));
+  });`,
+) as (captions: string[]) => boolean;
+
 const READ_TABLE = inPage(String.raw`
   const columns = arg;
   const norm = (s) => (s || '').replace(/\s+/g, ' ').trim();
@@ -505,7 +517,19 @@ export class Session {
         return r.index;
       }
       case 'extractTable': {
-        const r = await this.find(page, step.target, index);
+        // A legacy grid with no rows is often not rendered at all ("No orders
+        // on file."). If no table on the page has the grid's column captions,
+        // that's an empty list; a table that has them but not the old locator
+        // is drift and fails as usual, so the healer can step in.
+        const r = await this.find(page, step.target, index).catch(async (e: unknown) => {
+          if (!(e instanceof Stop) || e.reason !== 'locator_failed') throw e;
+          if (await page.evaluate(HAS_TABLE, Object.values(step.columns))) throw e;
+          return undefined;
+        });
+        if (!r) {
+          vars.output[step.into] = [];
+          return 0;
+        }
         const rows = (await r.locator.evaluate(READ_TABLE, step.columns)) as Record<string, string>[];
         vars.output[step.into] = rows;
         return r.index;
