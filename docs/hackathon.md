@@ -1,36 +1,62 @@
 # Hackathon findings
 
-Last checked Oct 26, 2026 (first day of the build window). The Cerebral Valley page can't be opened from the build container, so this comes from fetching the public pages plus search results.
+Last updated Oct 29, 2026, when Kaveh pasted the Official Rules from the participant portal. Earlier notes come from the public event pages and search results.
 
 ## Status
 
-- Application **approved** (Oct 20, 2026).
-- **Official Rules: still not public.** As of Oct 26, both the [Cerebral Valley page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) and [dev.meta.ai](https://dev.meta.ai/events/global-hackathon) still say they "will be published before the Hackathon begins on October 26, 2026 and must be accepted by the selected participants". No public copy is indexed anywhere. They will most likely appear in the participant portal or a kickoff email, so check there and update this file.
-- The only linked legal document is the [Application Overview and Event Waiver](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/waiver). Its body doesn't render outside a browser.
+- Application **approved** (Oct 20, 2026). Entering the **Indie** track, solo.
+- Official Rules: published to participants. Section 4 ("Hackathon Rules") is quoted below.
+
+## Official rules (section 4, verbatim)
+
+> - Open source: Repositories must be public.
+> - Team size: A maximum of four participants per team. Solo participants are allowed.
+> - Demo requirements: Your demo must only highlight the specific features, code, and functionality that you built during the Hackathon. Judges must be able to clearly identify what was created during the Hackathon. Failure to clearly identify your original contributions will result in immediate disqualification at Judges sole discretion.
+> - New work only: What you present at this Hackathon must have been built during the event. This should be clear in your submissions. Startups may build on existing products or codebases, but you must clearly identify what was newly developed during the Hackathon.
+> - Banned projects: Projects will be disqualified if they: violate legal, ethical, or platform policies, use code, data, or assets you do not have the rights to.
+
+The rules also list "anti-projects" to avoid: AI medical advice, basic RAG apps, simple image analyzers, simple "AI for Education" chatbots, AI job application screeners, AI nutrition coaches, personality analyzers, sports analyzers or coaches, and anything political or involving war. LegacyLink isn't in any of these categories.
 
 ## Deadline
 
 - Event page: **"Nov 4: Project submissions due by 9:00 PM ET"**. The page header says "submissions due Nov 5, 2026 UTC".
-- US clocks change on Nov 1, so Nov 4 is EST (UTC-5). 9:00 PM ET is therefore **02:00 UTC on Nov 5**, or 05:30 Tehran time on Nov 5. Both sources agree once the time zone is worked out.
-- Internshala's "6:30 AM IST" (01:00 UTC) uses daylight time and is one hour early. Using it as our hard stop costs nothing.
+- US clocks change on Nov 1, so Nov 4 is EST (UTC-5). 9:00 PM ET is therefore **02:00 UTC on Nov 5**, or 05:30 Tehran time on Nov 5.
 - No grace period is stated. Our plan: **submit by the end of Nov 4, local time.**
 - Judging runs Nov 4–8. Winners are announced at the Nov 9 closing ceremony.
 
-## Code written before the build window
+## What was built when
 
-- **Not addressed** by any public source. ReconScribe's guide only says entries must be work you own, and open-source components are fine if you follow their licences.
-- Our exposure: `contoso-order-entry` (the target app) and the docs in this repo were written Oct 20. The LegacyLink agent itself has no code from before Oct 26.
-- Until the rules say otherwise:
-  - treat the sample app as a test fixture, not the entry;
-  - say plainly in the submission that it was prepared before the window;
-  - keep all agent code in commits dated Oct 26 or later.
-- Re-check this as soon as the rules are out. If they ban prior code, rewrite or regenerate the sample app inside the window; it's small.
+Git history is the evidence. The build window opened Oct 26.
+
+**Before the window (Oct 20):** none of this is presented as hackathon work.
+
+| Repo | What | Commits |
+|---|---|---|
+| legacylink | First README (since rewritten), `docs/plan.md`, early `docs/hackathon.md` | `2f15433`, `e181f10`, `bc8f1d6` |
+| legacylink | `docs/architecture.md`: the design and format spec. It contains no runnable code. | `2ded9c9` |
+| legacylink | `.claude/`: Claude Code settings plus two skills copied from [anthropics/skills](https://github.com/anthropics/skills) (Apache 2.0, licence kept). These are dev tooling, not product. | `5447f7b` |
+| contoso-order-entry | The whole sample app and its static build. It's the **target** the agent works on, not the entry. | `594bd65` to `acc313c` |
+
+**During the window (Oct 26 onward):** this is the entry.
+
+- legacylink: everything under `src/`, `test/`, `prompts/` and `examples/`; the CLI; the explorer, learner, compiler, runner, MCP server, approval console, healer and the scripted demo; CI; and every doc except the ones listed above.
+- contoso-order-entry: `vercel.json` only (Oct 26).
+
+## Compliance checklist
+
+- [ ] Make both repos public before submitting. Neither repo's history has secrets: a scan on Oct 29 found only env-var names, and no `.env` file has ever been committed. Note that commit metadata includes a personal email address, which becomes public.
+- [ ] Add a licence file. None exists yet. The rules only require public repos, but "open source" reads better with a licence, for example MIT.
+- [ ] Keep the README section "Built during the hackathon" and link to it from the submission.
+- [ ] In the demo video, say out loud that Contoso was prepared on Oct 20 as a test target. Show only LegacyLink features.
+- [ ] Rights: npm dependencies are all MIT, ISC, Apache-2.0 or BSD (checked Oct 29). The anthropics/skills copies keep their Apache 2.0 licence. Contoso's CSS and markup were written from scratch to look like 2009 WebForms, and copy no Microsoft files. "Contoso" is Microsoft's standard fictional sample company.
+- [ ] Use no customer data. Contoso's data is invented in `lib/data.js`.
+- [ ] Confirm eligibility: participants located in sanctioned countries (see Eligibility) are excluded, and Meta Model API has its own country list.
 
 ## Deliverables
 
-- Submit through the Cerebral Valley portal. Each project enters exactly one track. We're entering **Indie**, solo.
-- Reported, but not on the official page: a working demo and a demo video. The submission form wasn't public as of Oct 17.
-- Unknown until the rules are out: whether a repo link, a public demo URL, a written description or a video length limit is required. Prepare all four anyway: a public repo or a judge invite, a README, a 2–3 minute video, and a short description.
+- Submit through the Cerebral Valley portal. Each project enters exactly one track.
+- The rules require public repos and a submission that clearly marks what was built during the event. A working demo and a demo video are also expected.
+- Prepare all of these: the public repo links, the README, a 2–3 minute video and a short description that names what was built during the event.
 
 ## Judging
 
@@ -54,6 +80,7 @@ Last checked Oct 26, 2026 (first day of the build window). The Cerebral Valley p
 
 ## Sources
 
+- Official Rules, section 4 (participant portal; pasted Oct 29)
 - [Cerebral Valley event page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) ([markdown version](https://cerebralvalley.ai/e/meta-ai-developer-hackathon.md))
 - [dev.meta.ai event page](https://dev.meta.ai/events/global-hackathon)
 - [ReconScribe guide (Oct 17)](https://reconscribe.com/meta-global-ai-developer-hackathon-2026/)
