@@ -116,20 +116,22 @@ export async function serve(opts: ServeOptions): Promise<void> {
   const gate = new ApprovalGate();
   const healer = workspace.healer({ mode: opts.model, log: (line) => console.error(line) });
   console.error(`LegacyLink self-heal: ${healer.model.id}${healer.model.mode ? ` (${healer.model.mode})` : ''}`);
-  if (opts.consolePort !== undefined) {
-    const c = await startConsole({ workspace, gate, port: opts.consolePort });
-    console.error(`LegacyLink console: ${c.url}`);
-    gate.on('requested', (r) => console.error(`Approval needed for ${r.tool} (${r.id}): ${c.url}`));
-  }
-  const server = createMcpServer({ workspace, session, gate, healer });
   const shutdown = async () => {
     await session.close();
     process.exit(0);
   };
+  if (opts.consolePort !== undefined) {
+    const c = await startConsole({ workspace, gate, port: opts.consolePort, onQuit: () => void shutdown() });
+    console.error(`LegacyLink console: ${c.url}`);
+    gate.on('requested', (r) => console.error(`Approval needed for ${r.tool} (${r.id}): ${c.url}`));
+  }
+  const server = createMcpServer({ workspace, session, gate, healer });
   server.onclose = () => void shutdown();
   process.on('SIGINT', () => void shutdown());
   process.on('SIGTERM', () => void shutdown());
-  process.stdin.on('end', () => void shutdown()); // the client went away
+  // The client went away. 'close' too: on Windows a killed pipe may not end cleanly.
+  process.stdin.on('end', () => void shutdown());
+  process.stdin.on('close', () => void shutdown());
   await server.connect(new StdioServerTransport());
   console.error(`LegacyLink MCP server: ${(await workspace.registry.current()).map((s) => `${s.name}@${s.version}`).join(', ') || 'no tools registered'}`);
 }

@@ -32,6 +32,27 @@ To use the checked-in tools without compiling, copy `examples/contoso/{graph.jso
 }
 ```
 
+On Windows, Claude Desktop doesn't run `npx` without `cmd /c`; start tsx with `node` instead (`%APPDATA%\Claude\claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "legacylink": {
+      "command": "node",
+      "args": [
+        "D:\\path\\to\\legacylink\\node_modules\\tsx\\dist\\cli.mjs",
+        "D:\\path\\to\\legacylink\\src\\cli.ts",
+        "serve", "--model", "replay",
+        "--out", "D:\\path\\to\\legacylink\\.legacylink"
+      ],
+      "env": { "LEGACYLINK_PASSWORD": "demo" }
+    }
+  }
+}
+```
+
+Claude Desktop starts a short-lived probe server before the real one and doesn't always stop it on Windows. When `serve` finds the console port taken by another LegacyLink console, it asks that one to quit (`POST /api/quit`) and takes the port over, so the console you open is always the live server's. Anything else on the port is an error that names `--console-port`.
+
 A write call stays open until someone approves it or the 5-minute timeout runs out. If the client sends a `progressToken`, the server sends a progress notification every 10 seconds, which stops clients that support `resetTimeoutOnProgress` from timing out. A client with a short fixed timeout can still give up first, so open the console before the demo and approve right away.
 
 ## What compile does
