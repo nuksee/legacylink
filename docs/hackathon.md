@@ -50,19 +50,49 @@ Git history is the evidence. The build window opened Oct 26.
 - [ ] In the demo video, say out loud that Contoso was prepared on Oct 20 as a test target. Show only LegacyLink features.
 - [ ] Rights: npm dependencies are all MIT, ISC, Apache-2.0 or BSD (checked Oct 29). The anthropics/skills copies keep their Apache 2.0 licence. Contoso's CSS and markup were written from scratch to look like 2009 WebForms, and copy no Microsoft files. "Contoso" is Microsoft's standard fictional sample company.
 - [ ] Use no customer data. Contoso's data is invented in `lib/data.js`.
+- [ ] On the form, choose the problem statement **Push the Frontier** and the **Indie** track.
+- [ ] Claim the Meta API credits before Nov 4, 9 PM ET.
+- [ ] Post the demo on X, for the Most Viral bonus and the Community Vote.
 - [ ] Confirm eligibility: participants located in sanctioned countries (see Eligibility) are excluded, and Meta Model API has its own country list.
 
 ## Deliverables
 
-- Submit through the Cerebral Valley portal. Each project enters exactly one track.
-- The rules require public repos and a submission that clearly marks what was built during the event. A working demo and a demo video are also expected.
-- Prepare all of these: the public repo links, the README, a 2–3 minute video and a short description that names what was built during the event.
+- Submit through the Cerebral Valley portal. Each project enters exactly one track. Late submissions are not considered.
+- The rules require public repos and a submission that clearly marks what was built during the event.
+- A **3-minute demo video** is the main thing judges look at, alongside the code and the live product.
+- Pre-submit checklist (from the details page, secondhand): the repo is public, the video link works, and every contributor is listed.
+- The form's fields and the video hosting format are still unknown. Prepare the public repo links, the README, the 3-minute video (1080p) and a short description that names what was built during the event.
+- **Claim the API credits by Nov 4, 9 PM ET.** That's the same moment as the submission deadline.
 
 ## Judging
 
-- Event page, Indie track: "Judged on creativity, technical ambition, and whether it works."
-- Event page, Startup track: "Judged on technical execution and whether it holds up in production."
-- Reported weights from third-party guides, not confirmed by the event page: impact 30%, creative use of Meta tooling 25%, demo 25%, technical depth 20%.
+Kaveh shared the [event details page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) on Oct 29. It renders only in a signed-in browser, and the build container can't reach it. The items below come from another participant's notes on that page ([meta-ai-hackathon/meta-hack](https://github.com/meta-ai-hackathon/meta-hack/tree/main/info)). They match the weights reported earlier, but **confirm them against the page**.
+
+**Pass/fail gates, applied before scoring.** Failing either one disqualifies the project.
+1. The project fits one problem statement:
+   - **Build for Your World**: bring Meta's models into a domain you know firsthand.
+   - **Push the Frontier**: give a machine a new capability in software, robotics, manufacturing, energy, materials or science.
+
+   LegacyLink fits **Push the Frontier (software)**: agents gain the ability to operate API-less apps. Pick that one on the form.
+2. The project genuinely uses Meta's models: the Model API (Muse Spark series, Muse Wonder, Muse Image, Muse Voice Transcribe, SAM 3.1) and/or the open weights (Muse Glimmer, Muse Spark Open). LegacyLink's explorer, learner and healer run on Muse Spark, so this is met. Show those calls in the demo.
+
+**Scored rubric** (each part scored 0–10):
+
+| Criterion | Weight | What it means |
+|---|---|---|
+| Impact | 30% | Real-world potential, who benefits, whether people could actually use it |
+| Meta AI tooling | 25% | Creative use beyond a basic integration |
+| Demo | 25% | Working, impressive, holds up live, plus the quality of the 3-minute video |
+| Technical depth | 20% | Sound engineering and thoughtful refinement |
+
+The top 5 in each track go to a live final, judged on the same rubric. The event page sums up the Indie track as "creativity, technical ambition, and whether it works".
+
+**Bonus prizes ($50K in total):**
+- Most Viral Project, $20K: the most X engagement on the demo post through Nov 8.
+- Best Build on Open Weight Models, $10K: Muse Glimmer or Muse Spark Open, self-hosted or on partner inference.
+- Community Vote, $10K: the public gallery.
+- **Best Agentic Use-Case, $5K**: the strongest agent autonomy or multi-step workflows. This is the best fit for LegacyLink.
+- Best Creative Build, $5K: Muse Image or Muse Wonder.
 
 ## Meta models and credits
 
@@ -81,6 +111,7 @@ Git history is the evidence. The build window opened Oct 26.
 ## Sources
 
 - Official Rules, section 4 (participant portal; pasted Oct 29)
+- [Event details page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) (needs sign-in), summarized secondhand in [meta-ai-hackathon/meta-hack](https://github.com/meta-ai-hackathon/meta-hack/tree/main/info)
 - [Cerebral Valley event page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) ([markdown version](https://cerebralvalley.ai/e/meta-ai-developer-hackathon.md))
 - [dev.meta.ai event page](https://dev.meta.ai/events/global-hackathon)
 - [ReconScribe guide (Oct 17)](https://reconscribe.com/meta-global-ai-developer-hackathon-2026/)
