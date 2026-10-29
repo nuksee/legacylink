@@ -4,6 +4,8 @@ An agent that learns tasks in API-less legacy apps and compiles them into typed,
 
 Built for the Meta Global AI Developer Hackathon (Indie track, Oct 26 – Nov 4, 2026).
 
+**Try the target app:** [Contoso Order Entry](https://contoso-order-entry.vercel.app/) (log in as demo / demo), the fake legacy app LegacyLink is demoed against ([source](https://github.com/nuksee/contoso-order-entry)). The hosted copy runs in your browser and keeps its data there, so it's for clicking around; the demo runs against a local copy (`--contoso`), which LegacyLink can reset and drift.
+
 ## The problem
 
 Enterprises still run legacy apps with no API (WinForms, WebForms, Citrix-published apps, terminal emulators), and people re-key data into them all day.
