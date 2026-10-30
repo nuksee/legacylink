@@ -51,7 +51,8 @@ Muse Spark makes the model decisions in learn and heal. The demo's default is **
 | Setting | Learn and heal answers come from |
 | --- | --- |
 | nothing (default) | `replay`: recorded Muse Spark answers. Use this on stage. |
-| `--model live` or `LEGACYLINK_MODEL=live` | Muse Spark, called now. Needs `MODEL_API_KEY` (or a proxy that adds the key). New answers are recorded too, and `.legacylink/model-cache/` survives every demo run. |
+| `--model live` or `LEGACYLINK_MODEL=live` | Muse Spark for any call without a recording. Needs `MODEL_API_KEY` (or a proxy that adds the key). The checked-in recordings are still copied in and reused, so the demo's own calls come from them; new answers are recorded too, and `.legacylink/model-cache/` survives every demo run. |
+| `--model live --fresh` | Muse Spark, called now for every learn and heal: the state folder's recordings are dropped and the checked-in ones aren't copied. About 2 minutes a run instead of 30 seconds. Use it to record the video with real calls. |
 | `--model heuristic` | the rule-based stand-in. No model at all; the last resort. |
 
 The explorer has no recordings and a live exploration takes about two minutes, so `explore` uses the rule-based explorer unless you pass `--explore-model live`. Its graph is the one the tools were tested on.
@@ -61,6 +62,8 @@ In replay and live, the repeat harness fails a run if a heal fell back to the st
 Replay needs the screens to look exactly as they did when recorded. Contoso prints its business date on the home page, so `--contoso` starts it with `BUSINESS_DATE=2026-11-04`; if you start Contoso yourself, use `BUSINESS_DATE=2026-11-04 npm start`.
 
 Muse Spark names inputs its own way (`lines[{productId, quantity}]` where the stand-in says `lines[{product, qty}]`), so the demo's client fills its arguments from each tool's input schema, the way an agent reading the schema would.
+
+Every run ends with `Muse Spark calls this run: N live, M from recordings` (the repeat harness prints the totals), so you can tell which one you got.
 
 ## Rehearse: the repeat harness
 

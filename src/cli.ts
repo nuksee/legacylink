@@ -217,6 +217,7 @@ async function demoCommand(rest: string[]): Promise<number> {
       'console-port': { type: 'string', default: '5180' },
       'keep-drift': { type: 'boolean', default: false },
       model: { type: 'string' },
+      fresh: { type: 'boolean', default: false },
       repeat: { type: 'string' },
       report: { type: 'string' },
     },
@@ -225,6 +226,8 @@ async function demoCommand(rest: string[]): Promise<number> {
   // The demo's default is replay: Muse Spark's recorded answers, no network. Live is one switch.
   const model = (values.model ?? env.LEGACYLINK_MODEL ?? 'replay') as ModelMode;
   if (!['live', 'replay', 'heuristic'].includes(model)) throw new Error(`Unknown model mode "${model}"`);
+  // Live reuses recorded answers; --fresh drops them so every learn and heal calls Muse Spark now.
+  if (values.fresh && model !== 'live') throw new Error('--fresh needs --model live');
   const exploreModel = (values['explore-model'] ?? 'heuristic') as ModelMode;
   if (env[values['password-env']!] === undefined) env[values['password-env']!] = 'demo'; // Contoso's demo login
   const opts: DemoOptions = {
@@ -233,6 +236,7 @@ async function demoCommand(rest: string[]): Promise<number> {
     user: values.user!,
     passwordEnv: values['password-env']!,
     model,
+    fresh: values.fresh!,
     exploreModel,
     prebuilt: values.prebuilt!,
     setupOnly: values['setup-only']!,
