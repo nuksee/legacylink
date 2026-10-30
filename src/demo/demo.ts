@@ -37,6 +37,7 @@ export interface DemoOptions {
   user: string;
   passwordEnv: string;
   model: ModelMode; // learn and heal: replay (recorded Muse Spark answers), live or heuristic
+  fresh?: boolean; // live only: drop every recorded answer first, so each learn and heal calls Muse Spark
   exploreModel: ModelMode; // default heuristic: no recordings, and the tools were tested on its graph
   prebuilt: boolean; // fallback: skip explore + learn, use the checked-in graph and tasks
   setupOnly: boolean; // stop after compile, for a real MCP client
@@ -62,6 +63,7 @@ export interface DemoResult {
   ms: number;
   acts: Act[];
   model: string;
+  modelCalls?: { live: number; recorded: number }; // learn and heal calls in this run
   log: string[]; // everything the children printed, for failure reports
 }
 
@@ -148,10 +150,26 @@ export async function startContoso(dir: string, url: string, log: (l: string) =>
 
 // Wipes the state folder but keeps the recorded model answers, and adds the
 // checked-in ones (live Muse Spark answers for the demo's learn and heal calls).
-async function cleanState(out: string, seedCache: boolean): Promise<void> {
+// Fresh drops the recorded answers too, so live mode really calls the model.
+async function cleanState(out: string, seedCache: boolean, fresh = false): Promise<void> {
   await mkdir(out, { recursive: true });
-  for (const f of await readdir(out)) if (f !== 'model-cache') await rm(join(out, f), { recursive: true, force: true });
-  if (seedCache) await cp(new URL('model-cache', EXAMPLES), join(out, 'model-cache'), { recursive: true, force: false });
+  for (const f of await readdir(out)) if (fresh || f !== 'model-cache') await rm(join(out, f), { recursive: true, force: true });
+  if (seedCache && !fresh) await cp(new URL('model-cache', EXAMPLES), join(out, 'model-cache'), { recursive: true, force: false });
+}
+
+// Counts this run's model calls from the run log: answered by Muse Spark now, or from a recording.
+async function countModelCalls(out: string): Promise<{ live: number; recorded: number }> {
+  const n = { live: 0, recorded: 0 };
+  const dir = join(out, 'runs');
+  for (const f of await readdir(dir).catch(() => [] as string[])) {
+    if (!f.endsWith('.jsonl')) continue;
+    for (const line of (await readFile(join(dir, f), 'utf8')).split('\n')) {
+      if (!line.includes('"model_call"')) continue;
+      const e = JSON.parse(line) as { type: string; cached?: boolean };
+      if (e.type === 'model_call') n[e.cached ? 'recorded' : 'live']++;
+    }
+  }
+  return n;
 }
 
 export async function runDemo(opts: DemoOptions): Promise<DemoResult> {
@@ -211,12 +229,13 @@ export async function runDemo(opts: DemoOptions): Promise<DemoResult> {
   let transport: StdioClientTransport | undefined;
   try {
     const how = opts.prebuilt ? 'prebuilt graph and tasks' : `explorer: ${opts.exploreModel}`;
-    say(`LegacyLink demo against ${opts.url}; learn and heal: ${model === 'replay' ? 'recorded Muse Spark answers (replay)' : model}; ${how}`);
+    const learnHeal = model === 'replay' ? 'recorded Muse Spark answers (replay)' : model === 'live' ? (opts.fresh ? 'Muse Spark, live (no recordings)' : 'Muse Spark, live (recorded answers reused)') : model;
+    say(`LegacyLink demo against ${opts.url}; learn and heal: ${learnHeal}; ${how}`);
 
     await act('Reset Contoso: seed data, no drift', async () => {
       check(await reachable(opts.url), `Contoso is not reachable at ${opts.url} (npm start in nuksee/contoso-order-entry, or pass --contoso <dir>)`);
       await admin(opts.url, 'reset');
-      await cleanState(out, model !== 'heuristic');
+      await cleanState(out, model !== 'heuristic', opts.fresh);
     });
 
     if (opts.prebuilt) {
@@ -392,7 +411,9 @@ export async function runDemo(opts: DemoOptions): Promise<DemoResult> {
       return o;
     }, (o) => `saved ${o.orderNumber}; create_sales_order is v2`);
 
-    return { ok: true, ms: Date.now() - started, acts, model, log };
+    const modelCalls = await countModelCalls(out);
+    if (model !== 'heuristic') say(`\nMuse Spark calls this run: ${modelCalls.live} live, ${modelCalls.recorded} from recordings`);
+    return { ok: true, ms: Date.now() - started, acts, model, modelCalls, log };
   } catch (e) {
     if (!(e instanceof DemoError) && !acts.some((a) => !a.ok)) acts.push({ name: 'demo', ok: false, ms: Date.now() - started, detail: (e as Error).stack ?? String(e) });
     return { ok: false, ms: Date.now() - started, acts, model, log };
@@ -424,7 +445,8 @@ export async function repeatDemo(opts: DemoOptions, times: number, report?: stri
   const ms = results.map((r) => r.ms).sort((a, b) => a - b);
   const slowest = new Map<string, number>();
   for (const r of results) for (const a of r.acts) slowest.set(a.name, Math.max(slowest.get(a.name) ?? 0, a.ms));
-  console.error(`\n${passed}/${times} passed (model ${results[0]?.model}); run time median ${((ms[Math.floor(ms.length / 2)] ?? 0) / 1000).toFixed(1)} s, max ${((ms.at(-1) ?? 0) / 1000).toFixed(1)} s`);
+  const calls = results.reduce((n, r) => ({ live: n.live + (r.modelCalls?.live ?? 0), recorded: n.recorded + (r.modelCalls?.recorded ?? 0) }), { live: 0, recorded: 0 });
+  console.error(`\n${passed}/${times} passed (model ${results[0]?.model}; Muse Spark calls ${calls.live} live, ${calls.recorded} from recordings); run time median ${((ms[Math.floor(ms.length / 2)] ?? 0) / 1000).toFixed(1)} s, max ${((ms.at(-1) ?? 0) / 1000).toFixed(1)} s`);
   console.error('Slowest time per act:');
   for (const [name, t] of slowest) console.error(`  ${String(t).padStart(6)} ms  ${name}`);
   if (passed < times) console.error(`Failed runs are kept in ${failures}/`);
