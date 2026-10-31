@@ -99,11 +99,14 @@ export function parseValue(raw: string, parse: Parse = 'text'): unknown {
 
 // Turns the text read off the screen into the output schema's types: "$7,500.00"
 // becomes 7500 where the schema says number, "40" becomes 40 where it says
-// integer. Grid cells are read as text, so this is what types them.
+// integer. Grid cells are read as text, so this is what types them. The other way
+// round too: a step that parses money gives 1720, which becomes "1720" where the
+// learned schema says string (Muse Spark sometimes types a total as text).
 export function coerceToSchema(value: unknown, schema: JsonSchema | undefined): unknown {
   if (!schema) return value;
   const type = schema.type;
   if (typeof value === 'string' && (type === 'number' || type === 'integer')) return parseValue(value, type === 'integer' ? 'int' : 'money') ?? value;
+  if ((typeof value === 'number' || typeof value === 'boolean') && type === 'string') return String(value);
   if (Array.isArray(value)) return value.map((v) => coerceToSchema(v, schema.items as JsonSchema | undefined));
   if (value && typeof value === 'object') {
     const p = (schema.properties ?? {}) as Record<string, JsonSchema>;
