@@ -375,7 +375,9 @@ export async function runDemo(opts: DemoOptions): Promise<DemoResult> {
 
     await act('Read: get_customer_details C1003', async () => {
       const o = await call('get_customer_details', { customerId: 'C1003' }, false);
-      check(o.name === 'Adventure Works' && typeof o.creditLimit === 'number', `unexpected output ${JSON.stringify(o)}`);
+      // A live learn may type the credit limit as text ("7500"); the tool's own schema decides.
+      const credit = Number(String(o.creditLimit ?? '').replace(/[$,]/g, ''));
+      check(o.name === 'Adventure Works' && o.creditLimit !== '' && Number.isFinite(credit), `unexpected output ${JSON.stringify(o)}`);
       return o;
     }, (o) => `${o.name}, credit limit ${o.creditLimit}, ${(o.orders as unknown[] | undefined)?.length ?? 0} orders`);
 
