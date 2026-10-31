@@ -41,7 +41,23 @@ export function museConfigFromEnv(env = process.env, mode = env.LEGACYLINK_MODEL
   };
 }
 
+// Retries a call that failed on the way (unreachable, 429, 5xx: the API sometimes answers
+// "502 upstream request failed") twice, after 2 s and 5 s. Other errors fail at once.
 export async function chat(cfg: MuseConfig, req: ChatRequest, signal?: AbortSignal): Promise<ChatResponse> {
+  for (const wait of [2000, 5000]) {
+    try {
+      return await chatOnce(cfg, req, signal);
+    } catch (e) {
+      if (!(e instanceof TransientError) || signal?.aborted) throw e;
+      await new Promise((r) => setTimeout(r, wait));
+    }
+  }
+  return chatOnce(cfg, req, signal);
+}
+
+class TransientError extends Error {}
+
+async function chatOnce(cfg: MuseConfig, req: ChatRequest, signal?: AbortSignal): Promise<ChatResponse> {
   const userContent = req.image
     ? [
         { type: 'text', text: req.user },
@@ -70,10 +86,14 @@ export async function chat(cfg: MuseConfig, req: ChatRequest, signal?: AbortSign
       code === 'ENOTFOUND' && (process.env.HTTPS_PROXY || process.env.https_proxy) && !process.env.NODE_USE_ENV_PROXY
         ? ' (HTTPS_PROXY is set but Node ignores it; run with NODE_USE_ENV_PROXY=1)'
         : '';
-    throw new Error(`Muse Spark API unreachable at ${url}: ${code || e.message}${hint}`);
+    const msg = `Muse Spark API unreachable at ${url}: ${code || e.message}${hint}`;
+    throw e.name === 'TimeoutError' || hint ? new Error(msg) : new TransientError(msg);
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`Muse Spark API ${res.status}: ${text.slice(0, 500)}`);
+  if (!res.ok) {
+    const msg = `Muse Spark API ${res.status}: ${text.slice(0, 500)}`;
+    throw res.status === 429 || res.status >= 500 ? new TransientError(msg) : new Error(msg);
+  }
   const body = JSON.parse(text) as {
     choices?: { finish_reason?: string; message?: { content?: string | null; refusal?: string | null } }[];
     usage?: { prompt_tokens?: number; completion_tokens?: number };
