@@ -315,10 +315,19 @@ async function main(argv: string[]): Promise<number> {
   return 0;
 }
 
+// Let the event loop drain instead of calling process.exit() right away: on Windows, exiting
+// while fetch is still closing its sockets trips a libuv assertion (UV_HANDLE_CLOSING in
+// win/async.c) and the process dies with 0xC0000409 after its work is done. The unref'd timer
+// still ends a command that leaves a handle open.
+function exit(code: number): void {
+  process.exitCode = code;
+  setTimeout(() => process.exit(code), 3000).unref();
+}
+
 main(process.argv.slice(2)).then(
-  (code) => code >= 0 && process.exit(code),
+  (code) => code >= 0 && exit(code),
   (err) => {
     console.error(err instanceof Error ? err.message : err);
-    process.exit(1);
+    exit(1);
   },
 );
