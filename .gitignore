@@ -5,3 +5,8 @@ dist/
 demo-report.json
 test-results/
 scratch/
+
+# Local secrets (MODEL_API_KEY etc.) must never be committed
+.env
+.env.*
+!.env.example
