@@ -29,6 +29,7 @@ describe('demo', () => {
   it('types grid cells by the output schema', () => {
     const schema = { type: 'object', properties: { total: { type: 'number' }, lines: { type: 'array', items: { type: 'object', properties: { qty: { type: 'integer' }, unitPrice: { type: 'number' }, sku: { type: 'string' } } } } } };
     assert.deepEqual(coerceToSchema({ total: '$1,720.00', lines: [{ qty: '40', unitPrice: '$18.00', sku: 'P-200' }] }, schema), { total: 1720, lines: [{ qty: 40, unitPrice: 18, sku: 'P-200' }] });
+    assert.deepEqual(coerceToSchema({ total: 1720, count: 3 }, { type: 'object', properties: { total: { type: 'string' }, count: { type: 'integer' } } }), { total: '1720', count: 3 });
   });
 
   it("the learner's view has no exploration date, so recorded learn answers replay after a fresh explore", async () => {

@@ -44,6 +44,7 @@ describe('model client', () => {
     globalThis.fetch = (async (_url: string, init: RequestInit) => {
       calls.push({ body: JSON.parse(String(init.body)), auth: new Headers(init.headers).get('authorization') });
       const content = answers.shift();
+      if (content instanceof Response) return content;
       return new Response(JSON.stringify({ choices: [{ message: { content: typeof content === 'string' ? content : JSON.stringify(content) } }], usage: { prompt_tokens: 100, completion_tokens: 20 } }));
     }) as typeof fetch;
   });
@@ -113,6 +114,16 @@ describe('model client', () => {
     assert.deepEqual(await model.healTarget(heal), { ref: 'e2', reason: 'Find does what Look Up did.' });
     assert.match(calls[1]!.body.messages[1].content, /looks like a commit button/);
     assert.equal(calls[0]!.body.response_format.json_schema.name, 'heal_target');
+  });
+
+  it('retries a 502 from the API, and fails a 400 at once', async () => {
+    answers.push(new Response('upstream request failed', { status: 502 }), good);
+    const out = await createModel({ cacheDir: dir, env }).analyzeScreen(input);
+    assert.equal(out.purpose, good.purpose);
+    assert.equal(calls.length, 2);
+    answers.push(new Response('bad request', { status: 400 }));
+    await assert.rejects(createModel({ cacheDir: dir, env }).analyzeScreen({ ...input, url: '/x' }), /400/);
+    assert.equal(calls.length, 3);
   });
 
   it('fails the stage after two invalid answers', async () => {
