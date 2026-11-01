@@ -20,6 +20,8 @@ export interface ConsoleOptions {
   // Called when a newer serve asks this one to step down (POST /api/quit).
   // Returns false to stay: this serve has a connected MCP client.
   onQuit?: () => boolean;
+  // serve --http: the MCP endpoint (/mcp) shares the console's port.
+  mcp?: (req: IncomingMessage, res: ServerResponse) => Promise<void>;
 }
 
 export interface ConsoleServer {
@@ -40,6 +42,12 @@ export async function startConsole(opts: ConsoleOptions): Promise<ConsoleServer>
     const host = req.headers.host ?? '';
     if (host !== `127.0.0.1:${port}` && host !== `localhost:${port}`) return send(res, 403, '{"error":"bad host"}');
     const url = new URL(req.url ?? '/', `http://${host}`);
+    if (url.pathname === '/mcp' && opts.mcp) {
+      // Same rule as the console: no cross-site callers.
+      const origin = req.headers.origin;
+      if (origin && origin !== `http://${host}`) return send(res, 403, '{"error":"bad origin"}');
+      return opts.mcp(req, res);
+    }
 
     if (req.method === 'GET' && url.pathname === '/') return send(res, 200, PAGE, 'text/html; charset=utf-8');
     if (req.method === 'GET' && url.pathname === '/api/state') {

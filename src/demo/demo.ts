@@ -302,7 +302,7 @@ export async function runDemo(opts: DemoOptions): Promise<DemoResult> {
         createInterface({ input: transport!.stderr as unknown as NodeJS.ReadableStream }).on('line', (l) => {
           say(`   ${l}`);
           serveLines.push(l);
-          const m = /LegacyLink console: (\S+)/.exec(l);
+          const m = /LegacyLink console: (http\S+)/.exec(l);
           if (m) {
             clearTimeout(timer);
             res(m[1]!);
