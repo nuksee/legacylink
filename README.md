@@ -6,7 +6,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track, Oct 26 – Nov 4,
 
 ## Built during the hackathon
 
-Everything in this repo was built during the build window (Oct 26 – Nov 4, 2026) except the following, which date from Oct 20 (see the git history):
+Everything in this repo was built during the build window (Oct 26 – Nov 4, 2026) except the following, which date from Oct 20 (see the git history: the build window starts at tag [`hackathon-start`](https://github.com/nuksee/legacylink/releases/tag/hackathon-start), commit `b1d5ccf`):
 
 - `docs/plan.md` and `docs/architecture.md` (the design and format spec, with no code), plus an earlier version of this README.
 - `.claude/`: Claude Code dev tooling, including two skills copied from [anthropics/skills](https://github.com/anthropics/skills) under Apache 2.0. These are not part of the product.
