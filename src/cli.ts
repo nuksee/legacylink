@@ -27,7 +27,7 @@ const USAGE = `Usage: legacylink explore --url <base URL> [options]
        legacylink learn "<one-sentence task>" [options]
        legacylink compile [task.json ...] --examples <file> [options]
        legacylink run <tool> '<input JSON>' [--approve]
-       legacylink serve [--console-port 5180] [--no-console]
+       legacylink serve [--console-port 5180] [--no-console] [--http]
        legacylink demo [--contoso <dir>] [--repeat <n>] [options]   (see docs/demo.md)
 
 Options:
@@ -61,6 +61,8 @@ A call that fails on UI drift is healed once (see docs/healer.md); <out>/graph.j
   --approve              run: approve a write without asking (otherwise asks on the terminal)
   --model <mode>         the healer's model: live | replay | heuristic
   --console-port <n>     serve: approval console port (default 5180, 0 for any free port)
+  --http                 serve: MCP over Streamable HTTP at http://127.0.0.1:<console port>/mcp
+                         instead of stdio; you start it, clients connect to it
   --headed               show the browser`;
 
 // Asks on the terminal. Used by compile and run when --approve isn't given.
@@ -164,6 +166,7 @@ async function serveCommand(rest: string[]): Promise<number> {
       out: { type: 'string', default: '.legacylink' },
       'console-port': { type: 'string', default: '5180' },
       'no-console': { type: 'boolean', default: false },
+      http: { type: 'boolean', default: false },
       headed: { type: 'boolean', default: false },
       model: { type: 'string' },
     },
@@ -171,10 +174,11 @@ async function serveCommand(rest: string[]): Promise<number> {
   await serve({
     model: values.model as ModelMode | undefined,
     workspace: new Workspace(resolve(values.out!)),
-    consolePort: values['no-console'] ? undefined : Number(values['console-port']),
+    consolePort: values['no-console'] && !values.http ? undefined : Number(values['console-port']),
     headless: !values.headed,
+    http: values.http,
   });
-  return -1; // keeps running until the client disconnects
+  return -1; // keeps running until the client disconnects (--http: until stopped)
 }
 
 async function learnCommand(rest: string[]): Promise<number> {

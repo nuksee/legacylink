@@ -6,7 +6,10 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema, type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { randomUUID } from 'node:crypto';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { CallToolRequestSchema, isInitializeRequest, ListToolsRequestSchema, type CallToolResult, type Tool } from '@modelcontextprotocol/sdk/types.js';
 import { ApprovalGate } from '../approval/gate.js';
 import { startConsole } from '../console/console.js';
 import type { ToolSpec } from '../formats/tool.js';
@@ -41,7 +44,9 @@ export function createMcpServer({ workspace, session, gate, healer, consoleUrl }
   const server = new Server({ name: 'legacylink', version: '0.1.0' }, { capabilities: { tools: { listChanged: true } } });
   const { registry } = workspace;
   // A heal registers a new version: tell the client its tool list changed.
-  healer?.on('healed', () => void server.sendToolListChanged().catch(() => {}));
+  const onHealed = () => void server.sendToolListChanged().catch(() => {});
+  healer?.on('healed', onHealed);
+  server.onclose = () => void healer?.off('healed', onHealed);
 
   // Read from disk on every call, so a recompile or a heal shows up at once.
   const usable = async () => {
@@ -108,9 +113,11 @@ export interface ServeOptions {
   consolePort?: number; // undefined: no console (writes can then only time out)
   headless?: boolean;
   model?: ModelMode; // the healer's model mode; default live with MODEL_API_KEY, else heuristic
+  http?: boolean; // MCP over Streamable HTTP at <console>/mcp instead of stdio; runs until stopped
 }
 
 // stdio transport: stdout belongs to the protocol, so everything else goes to stderr.
+// With --http, MCP is served next to the console and the process runs until stopped.
 export async function serve(opts: ServeOptions): Promise<void> {
   const { workspace } = opts;
   const session = workspace.session(await workspace.config(), { headless: opts.headless });
@@ -122,13 +129,52 @@ export async function serve(opts: ServeOptions): Promise<void> {
     process.exit(0);
   };
   // A newer serve may ask this one to give up the console port. Only a serve
-  // no client ever initialized (a leftover probe) steps down.
-  let clientConnected = false;
+  // no client ever initialized (a leftover probe) steps down; one you started
+  // with --http never does.
+  let clientConnected = opts.http === true;
   const onQuit = () => {
     if (clientConnected) return false;
     setImmediate(() => void shutdown());
     return true;
   };
+  const tools = async () => (await workspace.registry.current()).map((s) => `${s.name}@${s.version}`).join(', ') || 'no tools registered';
+  process.on('SIGINT', () => void shutdown());
+  process.on('SIGTERM', () => void shutdown());
+
+  if (opts.http) {
+    // One MCP session per client, all sharing one browser session, gate and healer.
+    const sessions = new Map<string, StreamableHTTPServerTransport>();
+    let consoleUrl: string | undefined;
+    const mcp = async (req: IncomingMessage, res: ServerResponse) => {
+      const id = req.headers['mcp-session-id'];
+      const known = typeof id === 'string' ? sessions.get(id) : undefined;
+      if (known) return known.handleRequest(req, res);
+      if (req.method !== 'POST') return void res.writeHead(typeof id === 'string' ? 404 : 400).end();
+      const chunks: Buffer[] = [];
+      for await (const c of req) chunks.push(c as Buffer);
+      let body: unknown;
+      try {
+        body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      } catch {
+        return void res.writeHead(400).end();
+      }
+      if (typeof id === 'string' || !isInitializeRequest(body)) return void res.writeHead(typeof id === 'string' ? 404 : 400).end();
+      const transport: StreamableHTTPServerTransport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => randomUUID(),
+        onsessioninitialized: (sid) => void sessions.set(sid, transport),
+      });
+      transport.onclose = () => void (transport.sessionId && sessions.delete(transport.sessionId));
+      await createMcpServer({ workspace, session, gate, healer, consoleUrl }).connect(transport);
+      await transport.handleRequest(req, res, body);
+    };
+    const c = await startConsole({ workspace, gate, port: opts.consolePort ?? 5180, onQuit, mcp });
+    consoleUrl = c.url;
+    gate.on('requested', (r) => console.error(`Approval needed for ${r.tool} (${r.id}): ${c.url}`));
+    console.error(`LegacyLink console: ${c.url}`);
+    console.error(`LegacyLink MCP server: ${await tools()} at ${new URL('mcp', c.url)} (Streamable HTTP; Ctrl+C stops it)`);
+    return;
+  }
+
   let consoleUrl: string | undefined;
   if (opts.consolePort !== undefined) {
     const c = await startConsole({ workspace, gate, port: opts.consolePort, onQuit });
@@ -141,11 +187,9 @@ export async function serve(opts: ServeOptions): Promise<void> {
     clientConnected = true;
   };
   server.onclose = () => void shutdown();
-  process.on('SIGINT', () => void shutdown());
-  process.on('SIGTERM', () => void shutdown());
   // The client went away. 'close' too: on Windows a killed pipe may not end cleanly.
   process.stdin.on('end', () => void shutdown());
   process.stdin.on('close', () => void shutdown());
   await server.connect(new StdioServerTransport());
-  console.error(`LegacyLink MCP server: ${(await workspace.registry.current()).map((s) => `${s.name}@${s.version}`).join(', ') || 'no tools registered'}`);
+  console.error(`LegacyLink MCP server: ${await tools()}`);
 }
