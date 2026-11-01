@@ -1,49 +1,118 @@
 # Hackathon findings
 
-Last checked Oct 26, 2026 (first day of the build window). The Cerebral Valley page can't be opened from the build container, so this comes from fetching the public pages plus search results.
+Last updated Oct 29, 2026, from the official **Participant Guide**: the event details page, which Kaveh saved as a PDF from the participant portal. Section numbers below follow the guide.
 
 ## Status
 
-- Application **approved** (Oct 20, 2026).
-- **Official Rules: still not public.** As of Oct 26, both the [Cerebral Valley page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) and [dev.meta.ai](https://dev.meta.ai/events/global-hackathon) still say they "will be published before the Hackathon begins on October 26, 2026 and must be accepted by the selected participants". No public copy is indexed anywhere. They will most likely appear in the participant portal or a kickoff email, so check there and update this file.
-- The only linked legal document is the [Application Overview and Event Waiver](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/waiver). Its body doesn't render outside a browser.
+- Application **approved** (Oct 20, 2026). Entering the **Indie** track, solo.
+- The Official Rules and Participant Guide are published to participants. Section 4 ("Hackathon Rules") is quoted below.
 
-## Deadline
+## Official rules (section 4, verbatim)
 
-- Event page: **"Nov 4: Project submissions due by 9:00 PM ET"**. The page header says "submissions due Nov 5, 2026 UTC".
-- US clocks change on Nov 1, so Nov 4 is EST (UTC-5). 9:00 PM ET is therefore **02:00 UTC on Nov 5**, or 05:30 Tehran time on Nov 5. Both sources agree once the time zone is worked out.
-- Internshala's "6:30 AM IST" (01:00 UTC) uses daylight time and is one hour early. Using it as our hard stop costs nothing.
-- No grace period is stated. Our plan: **submit by the end of Nov 4, local time.**
-- Judging runs Nov 4–8. Winners are announced at the Nov 9 closing ceremony.
+> - Open source: Repositories must be public.
+> - Team size: A maximum of four participants per team. Solo participants are allowed.
+> - Demo requirements: Your demo must only highlight the specific features, code, and functionality that you built during the Hackathon. Judges must be able to clearly identify what was created during the Hackathon. Failure to clearly identify your original contributions will result in immediate disqualification at Judges sole discretion.
+> - New work only: What you present at this Hackathon must have been built during the event. This should be clear in your submissions. Startups may build on existing products or codebases, but you must clearly identify what was newly developed during the Hackathon.
+> - Banned projects: Projects will be disqualified if they: violate legal, ethical, or platform policies, use code, data, or assets you do not have the rights to.
 
-## Code written before the build window
+The rules also list "anti-projects" to avoid: AI medical advice, basic RAG apps, simple image analyzers, simple "AI for Education" chatbots, AI job application screeners, AI nutrition coaches, personality analyzers, sports analyzers or coaches, and anything political or involving war. LegacyLink isn't in any of these categories.
 
-- **Not addressed** by any public source. ReconScribe's guide only says entries must be work you own, and open-source components are fine if you follow their licences.
-- Our exposure: `contoso-order-entry` (the target app) and the docs in this repo were written Oct 20. The LegacyLink agent itself has no code from before Oct 26.
-- Until the rules say otherwise:
-  - treat the sample app as a test fixture, not the entry;
-  - say plainly in the submission that it was prepared before the window;
-  - keep all agent code in commits dated Oct 26 or later.
-- Re-check this as soon as the rules are out. If they ban prior code, rewrite or regenerate the sample app inside the window; it's small.
+## Schedule and deadline (guide §3, all times ET)
 
-## Deliverables
+- **Kickoff:** Mon Oct 26, 12:00 PM ET (16:00 UTC). The guide gives the "building period" as Oct 27 – Nov 4.
+- **Live sessions:**
+  - Agents 101: Oct 27
+  - Agents 102 (verifiable agents): Oct 28
+  - Fireworks and Muse open models: Oct 30, 12:00 PM
+- **Office hours:** Discord `#office-hours`, 10–11 AM ET on weekdays.
+- **Tue Nov 3:** the last full day for submission questions and technical troubleshooting.
+- **Deadline: Wed Nov 4, 9:00 PM EST = 02:00 UTC Thu Nov 5.** Submit on the CV platform. "Late submissions won't be considered." Our plan is to submit by the end of Nov 4, local time.
+- **Judging:** Thu Nov 5 – Sun Nov 8.
+- **Mon Nov 9, 12:00 PM ET:** closing ceremony. The top 10 (5 per track) are announced, judged live in a final round, and winners revealed. Community voting opens the same day.
+- **Mon Nov 16:** community vote winner announced.
 
-- Submit through the Cerebral Valley portal. Each project enters exactly one track. We're entering **Indie**, solo.
-- Reported, but not on the official page: a working demo and a demo video. The submission form wasn't public as of Oct 17.
-- Unknown until the rules are out: whether a repo link, a public demo URL, a written description or a video length limit is required. Prepare all four anyway: a public repo or a judge invite, a README, a 2–3 minute video, and a short description.
+## What was built when
 
-## Judging
+Git history is the evidence. The event opened at kickoff, Oct 26 12:00 PM ET (16:00 UTC). The first agent commit (`f7e7b37`, the explorer) is from Oct 26 20:47 UTC, after kickoff. The guide calls Oct 27 – Nov 4 the "building period", so the work from the evening of Oct 26 sits between kickoff and that date. Say so openly in the submission.
 
-- Event page, Indie track: "Judged on creativity, technical ambition, and whether it works."
-- Event page, Startup track: "Judged on technical execution and whether it holds up in production."
-- Reported weights from third-party guides, not confirmed by the event page: impact 30%, creative use of Meta tooling 25%, demo 25%, technical depth 20%.
+**Before the window (Oct 20):** none of this is presented as hackathon work.
 
-## Meta models and credits
+| Repo | What | Commits |
+|---|---|---|
+| legacylink | First README (since rewritten), `docs/plan.md`, early `docs/hackathon.md` | `2f15433`, `e181f10`, `bc8f1d6` |
+| legacylink | `docs/architecture.md`: the design and format spec. It contains no runnable code. | `2ded9c9` |
+| legacylink | `.claude/`: Claude Code settings plus two skills copied from [anthropics/skills](https://github.com/anthropics/skills) (Apache 2.0, licence kept). These are dev tooling, not product. | `5447f7b` |
+| contoso-order-entry | The whole sample app and its static build. It's the **target** the agent works on, not the entry. | `594bd65` to `acc313c` |
 
-- **Muse Spark is not mandatory** on either official page. The page says participants can "use the Muse Spark series, Muse Wonder, Muse Image and SAM 3.1 through Meta Model API, run Meta open weights models, and code faster with Muse Code". The waiver reportedly says participants "build with Meta AI products including Muse Spark". Because Meta tooling is reportedly 25% of the score, use Muse Spark for the explorer and compiler steps anyway.
-- **Meta Model API credits:** $150 per selected participant. This comes from Meta's approval email, not from the public page, and is outside the $1M prize pool. Check the dashboard to confirm it has landed.
-- **Partner credits** (selected participants, for Meta open-weights models): Baseten $100 with 2M TPM, Modal $100 through Endpoints, Fireworks $25 plus a workshop.
-- Model API country restrictions apply. Model API is blocked in some countries the hackathon itself allows.
+**During the window (Oct 26 onward):** this is the entry.
+
+- legacylink: everything under `src/`, `test/`, `prompts/` and `examples/`; the CLI; the explorer, learner, compiler, runner, MCP server, approval console, healer and the scripted demo; CI; and every doc except the ones listed above.
+- contoso-order-entry: `vercel.json` only (Oct 26).
+
+## Compliance checklist
+
+- [ ] Make both repos public before submitting. Neither repo's history has secrets: a scan on Oct 29 found only env-var names, and no `.env` file has ever been committed. Note that commit metadata includes a personal email address, which becomes public.
+- [ ] Add a licence file. None exists yet. The rules only require public repos, but "open source" reads better with a licence, for example MIT.
+- [ ] Keep the README section "Built during the hackathon" and link to it from the submission.
+- [ ] Keep the demo video to 3 minutes. Say out loud that Contoso was prepared on Oct 20 as a test target. Show only LegacyLink features.
+- [ ] Rights: npm dependencies are all MIT, ISC, Apache-2.0 or BSD (checked Oct 29). The anthropics/skills copies keep their Apache 2.0 licence. Contoso's CSS and markup were written from scratch to look like 2009 WebForms, and copy no Microsoft files. "Contoso" is Microsoft's standard fictional sample company.
+- [ ] Use no customer data. Contoso's data is invented in `lib/data.js`.
+- [ ] On the form, choose the problem statement **Push the Frontier** and the **Indie** track.
+- [ ] Claim the $150 Meta API credits through the guide's Google form; this needs a card on the Billing page. Deadline: Nov 4, 9 PM ET.
+- [ ] Post the demo on X, for the Most Viral bonus and the Community Vote.
+- [ ] Confirm eligibility: participants located in sanctioned countries (see Eligibility) are excluded, and Meta Model API has its own country list.
+
+## Submission (guide §7)
+
+- Submit on the CV platform by **Nov 4, 9:00 PM EST**. Teams submit one project. A solo entrant is their own team's "Representative".
+- Required: a **three-minute demo video** "highlighting the specific features, code, and functionality you built during the Hackathon". Judges use it as a primary artifact, along with the code and the live product.
+- Before submitting, check that the repo is publicly accessible, the video link works, and everyone who worked on the project is listed.
+- The guide doesn't list the form's fields. Prepare the public repo links, the README, the 3-minute video (1080p, hosted at a public link) and a short description that names what was built during the event.
+
+## Judging (guide §1, §8, §9)
+
+**Stage one (pass/fail):** the project "reasonably fits the theme and reasonably used Meta Model API and/or Meta's open-weight models". The two problem statements are:
+- **Build for Your World**: bring Meta's models into your domain.
+- **Push the Frontier**: use Meta's models on challenges in "software, robotics, manufacturing, energy, materials and beyond". "Give a machine a new capability…"
+
+LegacyLink fits **Push the Frontier (software)**: it gives agents a new capability, operating apps that have no API. It meets the model requirement because the explorer, learner and healer call Muse Spark through the Model API. The demo should show those calls.
+
+**Stage two:** each criterion is scored 0–10.
+
+| Criterion | Weight | Guide's question (abridged) |
+|---|---|---|
+| Impact | 30% | Real-world potential, who benefits, could people actually use it, does it fit a problem statement |
+| Use of Meta AI tooling | 25% | Creative use beyond a basic integration |
+| Technical depth & execution | 20% | Sound, thoughtfully refined engineering |
+| Demo | 25% | Working and impressive, holds up live, a video that's genuinely cool to watch |
+
+**Stage three:** the top 5 per track go to a final round. The final-round judges watch the video demos live and rank them with the same rubric.
+
+**Prizes:** $1,000,000 in total.
+- Indie track ($400K): 1st $150K, 2nd $100K, 3rd $75K, 4th $50K, 5th $25K.
+- Startups track: $550K.
+- Bonus prizes from Meta ($50K):
+  - Most Viral Project, $20K: the highest engagement on X for the demo post after the event.
+  - Best Build on Meta Open Weight Models, $10K: Muse Glimmer or Muse Spark Open, on your own hardware or partner inference.
+  - Community Vote, $10K: votes in the public gallery; the winner is announced Nov 16.
+  - **Best Agentic Use-Case, $5K**: "strongest use of AI agents to complete meaningful tasks, make decisions, or coordinate multi-step workflows". This is the best fit for LegacyLink.
+  - Best Creative Build, $5K: Muse Image or Muse Wonder.
+
+## Meta models and credits (guide §1, §5, §6)
+
+- **Required:** "Your project must incorporate Meta's models."
+  - Through the Model API: the Muse Spark series, Muse Wonder, Muse Image, Muse Voice Transcribe and SAM 3.1.
+  - As open weights: Muse Glimmer and Muse Spark Open.
+  - For coding: the Muse Code agent.
+- **$150 in Meta Model API credits per accepted participant.** These aren't automatic.
+  - Apply through the Google form linked in the guide. Credits arrive in batches; check the Billing page.
+  - A credit card must be on the account before any API call. It gets a temporary pre-authorization charge, released within a few days.
+  - Set a "Spend Limit" notification on the Billing page to avoid going past $150.
+  - **Claim by Wed Nov 4, 9:00 PM ET.** Each participant claims their own credits.
+- Partner credits are not guaranteed:
+  - Baseten: $100 plus a 2M TPM limit, for up to 2,000 participants, reviewed by use case. For the hackathon, use the model id `meta-models/muse-spark-open-1026`.
+  - Modal: $100, for the first 1,000 participants.
+  - Fireworks: $25, for shortlisted teams only.
 - Pricing after credits: $1.25 per million input tokens and $4.25 per million output tokens for Muse Spark 1.1.
 
 ## Eligibility
@@ -54,6 +123,8 @@ Last checked Oct 26, 2026 (first day of the build window). The Cerebral Valley p
 
 ## Sources
 
+- Official Rules, section 4 (participant portal; pasted Oct 29)
+- [Participant Guide / event details page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) (needs sign-in; PDF saved by Kaveh Oct 29)
 - [Cerebral Valley event page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) ([markdown version](https://cerebralvalley.ai/e/meta-ai-developer-hackathon.md))
 - [dev.meta.ai event page](https://dev.meta.ai/events/global-hackathon)
 - [ReconScribe guide (Oct 17)](https://reconscribe.com/meta-global-ai-developer-hackathon-2026/)

@@ -4,7 +4,18 @@ An agent that learns tasks in API-less legacy apps and compiles them into typed,
 
 Built for the Meta Global AI Developer Hackathon (Indie track, Oct 26 – Nov 4, 2026).
 
+## Built during the hackathon
+
+Everything in this repo was built during the build window (Oct 26 – Nov 4, 2026) except the following, which date from Oct 20 (see the git history):
+
+- `docs/plan.md` and `docs/architecture.md` (the design and format spec, with no code), plus an earlier version of this README.
+- `.claude/`: Claude Code dev tooling, including two skills copied from [anthropics/skills](https://github.com/anthropics/skills) under Apache 2.0. These are not part of the product.
+- The demo target, [contoso-order-entry](https://github.com/nuksee/contoso-order-entry). It's a fake legacy app made as a test fixture, and isn't part of the entry.
+
+The full breakdown is in [docs/hackathon.md](docs/hackathon.md#what-was-built-when).
+
 **Try the target app:** [Contoso Order Entry](https://contoso-order-entry.vercel.app/) (log in as demo / demo), the fake legacy app LegacyLink is demoed against ([source](https://github.com/nuksee/contoso-order-entry)). The hosted copy runs in your browser and keeps its data there, so it's for clicking around; the demo runs against a local copy (`--contoso`), which LegacyLink can reset and drift.
+
 
 ## The problem
 
