@@ -12,6 +12,8 @@ AI agents are only as useful as the systems they can reach, and they reach syste
 
 Large companies can pay for a rewrite or a robotic process automation (RPA) team. Small and mid-sized businesses usually can't, so the one app their business runs on becomes the place where AI stops. And the usual workaround, screen-scraping scripts and RPA bots, breaks the first time the vendor renames a field or moves a button.
 
+This is a problem I know firsthand: I've spent my whole career at mid-size companies working on legacy code, and those teams now struggle to use AI on it.
+
 ## Who benefits
 
 - **Small and mid-sized businesses** with a line-of-business app they can't replace: their staff and their AI assistants can use it through tools instead of copy and paste, without a rewrite.
