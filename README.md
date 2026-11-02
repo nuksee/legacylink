@@ -2,7 +2,7 @@
 
 **Give AI agents a safe, typed API to apps that never had one.** LegacyLink watches an API-less legacy app, learns a task from one sentence, and compiles it into a typed, self-healing MCP tool that any agent can call. Meta's Muse Spark does the learning and the healing; the compiled tools run without a model.
 
-**Watch the 3-minute demo:** [youtu.be/HmHZiOtZ_eo](https://youtu.be/HmHZiOtZ_eo)
+**Watch the demo video (2:41):** [youtu.be/HmHZiOtZ_eo](https://youtu.be/HmHZiOtZ_eo)
 
 Built for the Meta Global AI Developer Hackathon (Indie track, problem statement **Push the Frontier**, Oct 26 – Nov 4, 2026); see [what was built during the hackathon](#built-during-the-hackathon).
 
