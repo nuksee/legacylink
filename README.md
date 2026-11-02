@@ -2,6 +2,8 @@
 
 **Give AI agents a safe, typed API to apps that never had one.** LegacyLink watches an API-less legacy app, learns a task from one sentence, and compiles it into a typed, self-healing MCP tool that any agent can call. Meta's Muse Spark does the learning and the healing; the compiled tools run without a model.
 
+**Watch the 3-minute demo:** [youtu.be/HmHZiOtZ_eo](https://youtu.be/HmHZiOtZ_eo)
+
 Built for the Meta Global AI Developer Hackathon (Indie track, problem statement **Push the Frontier**, Oct 26 – Nov 4, 2026); see [what was built during the hackathon](#built-during-the-hackathon).
 
 **Try the target app:** [Contoso Order Entry](https://contoso-order-entry.vercel.app/) (log in as demo / demo), the fake legacy app LegacyLink is demoed against ([source](https://github.com/nuksee/contoso-order-entry)). The hosted copy runs in your browser and keeps its data there, so it's for clicking around; the demo runs against a local copy (`--contoso`), which LegacyLink can reset and drift.
