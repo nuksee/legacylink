@@ -2,6 +2,8 @@
 
 **Give AI agents a safe, typed API to apps that never had one.** LegacyLink watches an API-less legacy app, learns a task from one sentence, and compiles it into a typed, self-healing MCP tool that any agent can call. Meta's Muse Spark does the learning and the healing; the compiled tools run without a model.
 
+**Watch the demo video (2:41):** [youtu.be/HmHZiOtZ_eo](https://youtu.be/HmHZiOtZ_eo)
+
 Built for the Meta Global AI Developer Hackathon (Indie track, problem statement **Push the Frontier**, Oct 26 – Nov 4, 2026); see [what was built during the hackathon](#built-during-the-hackathon).
 
 **Try the target app:** [Contoso Order Entry](https://contoso-order-entry.vercel.app/) (log in as demo / demo), the fake legacy app LegacyLink is demoed against ([source](https://github.com/nuksee/contoso-order-entry)). The hosted copy runs in your browser and keeps its data there, so it's for clicking around; the demo runs against a local copy (`--contoso`), which LegacyLink can reset and drift.
@@ -11,6 +13,8 @@ Built for the Meta Global AI Developer Hackathon (Indie track, problem statement
 AI agents are only as useful as the systems they can reach, and they reach systems through APIs. A lot of real work still happens in apps that have none: the order-entry screen, the ERP form, the WebForms or WinForms tool a vendor stopped updating years ago. People re-key data into them all day.
 
 Large companies can pay for a rewrite or a robotic process automation (RPA) team. Small and mid-sized businesses usually can't, so the one app their business runs on becomes the place where AI stops. And the usual workaround, screen-scraping scripts and RPA bots, breaks the first time the vendor renames a field or moves a button.
+
+This is a problem I know firsthand: I've spent my whole career at mid-size companies working on legacy code, and those teams now struggle to use AI on it.
 
 ## Who benefits
 
